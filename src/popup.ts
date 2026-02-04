@@ -11,6 +11,8 @@ import {
     setApiKey,
     getLogs,
     clearLogs,
+    getIsEnabled,
+    setIsEnabled,
 } from "./storage.js";
 import type { LogEntry } from "./types.js";
 
@@ -37,6 +39,9 @@ const apiKeyStatus = document.getElementById("api-key-status");
 const clearLogsBtn = document.getElementById("btn-clear-logs");
 const logsList = document.getElementById("logs-list");
 const logsEmpty = document.getElementById("logs-empty");
+
+// Global Toggle
+const extensionToggle = document.getElementById("extension-toggle") as HTMLInputElement;
 
 // ============================================
 // Tab Navigation
@@ -241,6 +246,26 @@ clearLogsBtn?.addEventListener("click", async () => {
 });
 
 // ============================================
+// Global Toggle Management
+// ============================================
+
+/**
+ * Load and set the initial state of the toggle
+ */
+async function loadEnabledState(): Promise<void> {
+    const isEnabled = await getIsEnabled();
+    if (extensionToggle) {
+        extensionToggle.checked = isEnabled;
+    }
+}
+
+// Handle toggle change
+extensionToggle?.addEventListener("change", async () => {
+    const isEnabled = extensionToggle.checked;
+    await setIsEnabled(isEnabled);
+});
+
+// ============================================
 // Utility Functions
 // ============================================
 
@@ -278,6 +303,7 @@ function formatDate(date: Date): string {
 async function init(): Promise<void> {
     await loadBlocklist();
     await loadApiKey();
+    await loadEnabledState();
 }
 
 init();

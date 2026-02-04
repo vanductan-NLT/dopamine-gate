@@ -12,6 +12,7 @@ export interface StorageData {
     blocklist: string[];
     apiKey: string;
     logs: LogEntry[];
+    isEnabled: boolean;
 }
 
 /** Single log entry for decisions */

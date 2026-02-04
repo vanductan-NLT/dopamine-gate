@@ -13,6 +13,7 @@ const STORAGE_KEYS = {
     BLOCKLIST: "blocklist",
     API_KEY: "apiKey",
     LOGS: "logs",
+    IS_ENABLED: "isEnabled",
 } as const;
 
 // ============================================
@@ -185,4 +186,27 @@ export async function getLogs(): Promise<LogEntry[]> {
  */
 export async function clearLogs(): Promise<void> {
     await setStorage({ logs: [] });
+}
+
+// ============================================
+// Global State Management
+// ============================================
+
+/**
+ * Check if the extension is globally enabled
+ */
+export async function getIsEnabled(): Promise<boolean> {
+    const result = await getStorage<Pick<StorageData, "isEnabled">>([
+        STORAGE_KEYS.IS_ENABLED,
+    ]);
+    // Default to true if not set
+    return result.isEnabled !== false;
+}
+
+/**
+ * Set the global enabled state
+ * @param enabled - Whether the extension should be active
+ */
+export async function setIsEnabled(enabled: boolean): Promise<void> {
+    await setStorage({ isEnabled: enabled });
 }

@@ -3,7 +3,7 @@
  * Monitors tab navigation and injects content script for blocked domains
  */
 
-import { getBlocklist, isBlocked } from "./storage.js";
+import { getBlocklist, isBlocked, getIsEnabled } from "./storage.js";
 import { evaluateWithGemini } from "./gemini.js";
 
 // ============================================
@@ -22,6 +22,13 @@ async function handleNavigation(tabId: number, url: string | undefined) {
     }
 
     try {
+        // Check if extension is globally enabled first
+        const isEnabled = await getIsEnabled();
+        if (!isEnabled) {
+            console.debug("[Dopamine Gate] Extension is disabled, skipping check");
+            return;
+        }
+
         const blocklist = await getBlocklist();
 
         // Check if URL matches blocked domain

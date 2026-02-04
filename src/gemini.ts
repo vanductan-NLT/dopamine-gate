@@ -27,8 +27,8 @@ Classification categories:
 - emotional_escape: Using internet to avoid feelings/stress
 
 Decision rules:
-- If mentor_approval is "No" → always block
-- If goal_alignment is "No" AND time_budget is "Unlimited" → block
+- If future_feeling is "Waste" → block
+- If outcome is "Emptiness" → block
 - If answers indicate procrastination or emotional escape → block
 - Otherwise allow cautiously
 
@@ -66,10 +66,11 @@ export async function evaluateWithGemini(
     // Prepare request payload
     const geminiRequest: GeminiRequest = {
         reason: answers.reason,
-        goal_alignment: answers.goalAlignment,
-        time_budget: answers.timeBudget,
+        goal_target: answers.goalTarget,
         alternative_action: answers.alternativeAction,
-        mentor_approval: answers.mentorApproval,
+        outcome: answers.outcome,
+        need_type: answers.needType,
+        future_feeling: answers.futureFeeling,
     };
 
     try {
@@ -163,21 +164,21 @@ export async function evaluateWithGemini(
  * @returns Decision if rule applies, null otherwise
  */
 export function applyClientRules(answers: ReflectionAnswers): AIDecision | null {
-    // Rule 1: If mentor would disapprove → block
-    if (answers.mentorApproval === "No") {
+    // Rule 1: If future feeling is waste → block
+    if (answers.futureFeeling === "Waste") {
         return {
             decision: "block",
             confidence: 1,
-            message: "Bạn đã tự nhận thức rằng mentor/future self sẽ không đồng ý. Hãy làm việc khác! 💪",
+            message: "Chính bạn cũng thấy lướt tiếp là phí thời gian. Hãy dừng lại thôi! 🛑",
         };
     }
 
-    // Rule 2: No goal alignment + Unlimited time → block
-    if (answers.goalAlignment === "No" && answers.timeBudget === "Unlimited") {
+    // Rule 2: Outcome is emptiness → block
+    if (answers.outcome === "Emptiness") {
         return {
             decision: "block",
             confidence: 0.9,
-            message: "Việc này không giúp goal của bạn và bạn không giới hạn thời gian. Rủi ro cao!",
+            message: "Đừng để bản thân rơi vào cảm giác trống rỗng sau khi lướt. Đi làm gì đó có ích hơn đi! ✨",
         };
     }
 

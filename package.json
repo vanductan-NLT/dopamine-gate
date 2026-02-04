@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "Chrome extension that blocks distracting websites with AI-powered reflection prompts",
   "scripts": {
-    "clean": "rm -rf dist",
-    "copy:static": "cp -r src/icons dist/ && cp src/*.html dist/ && cp src/*.css dist/ && cp manifest.json dist/",
+    "clean": "node -e \"const fs=require('fs'); if(fs.existsSync('dist')) fs.rmSync('dist', {recursive:true})\"",
+    "copy:static": "node scripts/build.js",
     "build:ts": "tsc",
-    "build": "npm run clean && mkdir dist && npm run build:ts && npm run copy:static",
+    "build": "npm run clean && npm run build:ts && npm run copy:static",
     "watch": "tsc --watch"
   },
   "devDependencies": {

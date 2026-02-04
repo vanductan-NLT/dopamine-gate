@@ -38,10 +38,11 @@ export type MentorApproval = "Yes" | "No";
 /** User's answers to reflection questions */
 export interface ReflectionAnswers {
     reason: string;
-    goalAlignment: GoalAlignment;
-    timeBudget: TimeBudget;
+    goalTarget: string;
     alternativeAction: string;
-    mentorApproval: MentorApproval;
+    outcome: "Knowledge" | "Real Entertainment" | "Emptiness";
+    needType: "Information" | "Dopamine";
+    futureFeeling: "Good" | "Waste";
 }
 
 // ============================================
@@ -66,10 +67,11 @@ export interface AIDecision {
 /** Request payload sent to Gemini */
 export interface GeminiRequest {
     reason: string;
-    goal_alignment: GoalAlignment;
-    time_budget: TimeBudget;
+    goal_target: string;
     alternative_action: string;
-    mentor_approval: MentorApproval;
+    outcome: string;
+    need_type: string;
+    future_feeling: string;
 }
 
 // ============================================

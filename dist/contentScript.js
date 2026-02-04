@@ -54,7 +54,9 @@ function injectOverlay() {
     overlay.innerHTML = `
     <div class="dopamine-gate-form" id="dopamine-gate-form">
       <div class="dopamine-gate-header">
-        <div class="dopamine-gate-logo">🧠</div>
+        <div class="dopamine-gate-logo">
+          <img src="${chrome.runtime.getURL('icons/icon128.png')}" alt="Logo" style="width: 80px; height: 80px; margin-bottom: 16px;">
+        </div>
         <h1 class="dopamine-gate-title">Dopamine Gate</h1>
         <p class="dopamine-gate-subtitle">Hít thở sâu. Suy nghĩ trước khi hành động.</p>
         <span class="dopamine-gate-domain">${getCurrentDomain()}</span>
@@ -64,79 +66,89 @@ function injectOverlay() {
         <!-- Question 1: Purpose -->
         <div class="dopamine-gate-group">
           <label class="dopamine-gate-label">
-            Mục đích vào trang này là gì?
-            <span class="dopamine-gate-hint">(tối thiểu 20 ký tự)</span>
+            1) Tao vào đây để làm gì?
+            <span class="dopamine-gate-hint">(Tìm thông tin? Trả lời ai? Hay chỉ muốn trốn việc?)</span>
           </label>
           <textarea 
             class="dopamine-gate-textarea" 
             id="dg-reason" 
             name="reason"
-            placeholder="Mô tả rõ ràng lý do bạn cần truy cập trang này..."
+            placeholder="Nếu không trả lời rõ -> đang nghiện dopamine..."
             required
           ></textarea>
           <div class="dopamine-gate-counter" id="dg-reason-counter">0/20</div>
-          <div class="dopamine-gate-error" id="dg-reason-error">Vui lòng nhập ít nhất 20 ký tự</div>
         </div>
 
-        <!-- Question 2: Goal Alignment -->
+        <!-- Question 2: Specific Goal -->
         <div class="dopamine-gate-group">
           <label class="dopamine-gate-label">
-            Việc này có giúp goal hiện tại của bạn không?
+            2) Mục tiêu cụ thể của lần lướt này là gì?
+            <span class="dopamine-gate-hint">(Xem 3 bài rồi thoát? Tìm 1 idea? Check tin nhắn?)</span>
           </label>
-          <div class="dopamine-gate-radios">
-            <input type="radio" class="dopamine-gate-radio" id="dg-goal-yes" name="goalAlignment" value="Yes" required>
-            <label class="dopamine-gate-radio-label" for="dg-goal-yes">✅ Có</label>
-            
-            <input type="radio" class="dopamine-gate-radio" id="dg-goal-no" name="goalAlignment" value="No">
-            <label class="dopamine-gate-radio-label" for="dg-goal-no">❌ Không</label>
-            
-            <input type="radio" class="dopamine-gate-radio" id="dg-goal-unsure" name="goalAlignment" value="Unsure">
-            <label class="dopamine-gate-radio-label" for="dg-goal-unsure">🤔 Không chắc</label>
-          </div>
+          <textarea 
+            class="dopamine-gate-textarea" 
+            id="dg-goal-target" 
+            name="goalTarget"
+            placeholder="Không có mục tiêu = bị thuật toán điều khiển..."
+            required
+          ></textarea>
         </div>
 
-        <!-- Question 3: Time Budget -->
+        <!-- Question 3: Alternative -->
         <div class="dopamine-gate-group">
           <label class="dopamine-gate-label">
-            Bạn định ở đây bao lâu?
-          </label>
-          <select class="dopamine-gate-select" id="dg-time" name="timeBudget" required>
-            <option value="">Chọn thời gian...</option>
-            <option value="2 min">⏱️ 2 phút</option>
-            <option value="5 min">⏱️ 5 phút</option>
-            <option value="10 min">⏱️ 10 phút</option>
-            <option value="Unlimited">♾️ Không giới hạn</option>
-          </select>
-        </div>
-
-        <!-- Question 4: Alternative Action -->
-        <div class="dopamine-gate-group">
-          <label class="dopamine-gate-label">
-            Nếu bạn không vào trang này, bạn sẽ làm gì trong 10 phút tới?
-            <span class="dopamine-gate-hint">(tối thiểu 20 ký tự)</span>
+            3) Nếu không vào MXH, tao sẽ làm gì thay thế?
+            <span class="dopamine-gate-hint">(Code? Đọc tài liệu? Nghỉ ngơi thật sự?)</span>
           </label>
           <textarea 
             class="dopamine-gate-textarea" 
             id="dg-alternative" 
             name="alternativeAction"
-            placeholder="Ví dụ: Đọc sách, tập thể dục, hoàn thành task công việc..."
+            placeholder="Nếu cái thay thế tốt hơn -> vào MXH là tự phá mình..."
             required
           ></textarea>
           <div class="dopamine-gate-counter" id="dg-alternative-counter">0/20</div>
-          <div class="dopamine-gate-error" id="dg-alternative-error">Vui lòng nhập ít nhất 20 ký tự</div>
         </div>
 
-        <!-- Question 5: Mentor Approval -->
+        <!-- Question 4: Outcome -->
         <div class="dopamine-gate-group">
           <label class="dopamine-gate-label">
-            Nếu mentor / future you nhìn thấy, bạn có đồng ý với hành động này không?
+            4) 10 phút nữa tao muốn nhận được gì?
+            <span class="dopamine-gate-hint">(Kiến thức? Giải trí thật sự? Hay chỉ trống rỗng?)</span>
+          </label>
+          <select class="dopamine-gate-select" id="dg-outcome" name="outcome" required>
+            <option value="">Chọn một...</option>
+            <option value="Knowledge">📚 Kiến thức</option>
+            <option value="Real Entertainment">🎮 Giải trí thật sự</option>
+            <option value="Emptiness">🕳️ Trống rỗng (Dopamine giả)</option>
+          </select>
+        </div>
+
+        <!-- Question 5: Need level -->
+        <div class="dopamine-gate-group">
+          <label class="dopamine-gate-label">
+            5) Tao đang cần dopamine hay cần thông tin?
           </label>
           <div class="dopamine-gate-radios">
-            <input type="radio" class="dopamine-gate-radio" id="dg-mentor-yes" name="mentorApproval" value="Yes" required>
-            <label class="dopamine-gate-radio-label" for="dg-mentor-yes">👍 Có, họ sẽ đồng ý</label>
+            <input type="radio" class="dopamine-gate-radio" id="dg-need-info" name="needType" value="Information" required>
+            <label class="dopamine-gate-radio-label" for="dg-need-info">ℹ️ Cần thông tin</label>
             
-            <input type="radio" class="dopamine-gate-radio" id="dg-mentor-no" name="mentorApproval" value="No">
-            <label class="dopamine-gate-radio-label" for="dg-mentor-no">👎 Không, họ sẽ thất vọng</label>
+            <input type="radio" class="dopamine-gate-radio" id="dg-need-dopamine" name="needType" value="Dopamine">
+            <label class="dopamine-gate-radio-label" for="dg-need-dopamine">⚡ Cần Dopamine (Mệt/Chán)</label>
+          </div>
+        </div>
+
+        <!-- Question 6: Future feeling -->
+        <div class="dopamine-gate-group">
+          <label class="dopamine-gate-label">
+            6) Nếu lướt 30 phút, tương lai tao sẽ cảm thấy sao?
+          </label>
+          <div class="dopamine-gate-radios">
+            <input type="radio" class="dopamine-gate-radio" id="dg-future-good" name="futureFeeling" value="Good" required>
+            <label class="dopamine-gate-radio-label" for="dg-future-good">✅ Ổn, đáng</label>
+            
+            <input type="radio" class="dopamine-gate-radio" id="dg-future-bad" name="futureFeeling" value="Waste">
+            <label class="dopamine-gate-radio-label" for="dg-future-bad">費 Vãi, phí thời gian</label>
           </div>
         </div>
 
@@ -239,10 +251,11 @@ async function handleFormSubmit(event) {
     // Extract form values
     const answers = {
         reason: formData.get("reason") || "",
-        goalAlignment: formData.get("goalAlignment") || "Unsure",
-        timeBudget: formData.get("timeBudget") || "5 min",
+        goalTarget: formData.get("goalTarget") || "",
         alternativeAction: formData.get("alternativeAction") || "",
-        mentorApproval: formData.get("mentorApproval") || "No",
+        outcome: formData.get("outcome") || "Emptiness",
+        needType: formData.get("needType") || "Dopamine",
+        futureFeeling: formData.get("futureFeeling") || "Waste",
     };
     // Client-side validation
     if (!validateForm(answers)) {

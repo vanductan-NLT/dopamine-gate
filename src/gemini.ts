@@ -52,28 +52,28 @@ Return ONLY this JSON format:
 export async function evaluateWithGemini(
     answers: ReflectionAnswers
 ): Promise<AIDecision> {
-    const apiKey = await getApiKey();
-
-    // Validate API key exists
-    if (!apiKey) {
-        return {
-            decision: "block",
-            confidence: 1,
-            message: "API Key not configured. Please add it in the extension settings.",
-        };
-    }
-
-    // Prepare request payload
-    const geminiRequest: GeminiRequest = {
-        reason: answers.reason,
-        goal_target: answers.goalTarget,
-        alternative_action: answers.alternativeAction,
-        outcome: answers.outcome,
-        need_type: answers.needType,
-        future_feeling: answers.futureFeeling,
-    };
-
     try {
+        const apiKey = await getApiKey();
+
+        // Validate API key exists
+        if (!apiKey) {
+            return {
+                decision: "block",
+                confidence: 1,
+                message: "API Key not configured. Please add it in the extension settings.",
+            };
+        }
+
+        // Prepare request payload
+        const geminiRequest: GeminiRequest = {
+            reason: answers.reason,
+            goal_target: answers.goalTarget,
+            alternative_action: answers.alternativeAction,
+            outcome: answers.outcome,
+            need_type: answers.needType,
+            future_feeling: answers.futureFeeling,
+        };
+
         console.log("[Dopamine Gate] Calling Gemini API...");
 
         // Add AbortController for timeout
@@ -108,53 +108,51 @@ export async function evaluateWithGemini(
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            console.error("Gemini API error:", errorData);
+            console.error("[Dopamine Gate] Gemini API error:", errorData);
 
-            // Handle specific error cases
+            if (response.status === 404) {
+                return {
+                    decision: "block",
+                    confidence: 1,
+                    message: `Model not found (404). Your region might not support gemini-2.5-flash yet.`,
+                };
+            }
+
             if (response.status === 400 || response.status === 403) {
                 return {
                     decision: "block",
                     confidence: 1,
-                    message: `Invalid API Key or restricted region (Status ${response.status}). Check Settings.`,
-                };
-            }
-
-            if (response.status === 429) {
-                return {
-                    decision: "block",
-                    confidence: 1,
-                    message: "Rate limit exceeded. Please wait a moment before trying again.",
+                    message: `Invalid API Key or Restricted Access (Status ${response.status}).`,
                 };
             }
 
             return {
                 decision: "block",
                 confidence: 1,
-                message: `AI Connection Error (Status ${response.status}). Defaulting to block for safety.`,
+                message: `AI Connection Error (Status ${response.status}). Please try again later.`,
             };
         }
 
         const data = await response.json();
-        console.log("[Dopamine Gate] Gemini response received successfully.");
-
-        // Extract text response from Gemini
         const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
         if (!textResponse) {
             throw new Error("Empty response from Gemini");
         }
 
-        // Parse JSON from response (may have markdown code blocks)
-        const jsonMatch = textResponse.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) {
-            throw new Error("No JSON found in response");
+        // Safer JSON extraction: find first '{' and last '}'
+        const firstBracket = textResponse.indexOf("{");
+        const lastBracket = textResponse.lastIndexOf("}");
+
+        if (firstBracket === -1 || lastBracket === -1) {
+            throw new Error("No JSON object found in AI response");
         }
 
-        const aiDecision: AIDecision = JSON.parse(jsonMatch[0]);
+        const jsonString = textResponse.substring(firstBracket, lastBracket + 1);
+        const aiDecision: AIDecision = JSON.parse(jsonString);
 
-        // Validate response structure
-        if (!aiDecision.decision || !["allow", "block"].includes(aiDecision.decision)) {
-            throw new Error("Invalid decision format");
+        if (!aiDecision.decision) {
+            throw new Error("Invalid AI decision format");
         }
 
         return {
@@ -169,13 +167,12 @@ export async function evaluateWithGemini(
             return {
                 decision: "block",
                 confidence: 1,
-                message: "⏱️ Gemini API level timeout. Check your connection or try again.",
+                message: "⏱️ Gemini API level timeout. Connection is too slow.",
             };
         }
 
-        console.error("[Dopamine Gate] Gemini evaluation error:", error);
+        console.error("[Dopamine Gate] Gemini evaluation failed:", error);
 
-        // Fallback to blocking on error (safer default)
         return {
             decision: "block",
             confidence: 1,

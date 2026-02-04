@@ -243,7 +243,7 @@ function injectOverlay(): void {
         <!-- Actions -->
         <div class="dopamine-gate-actions">
           <button type="button" class="dopamine-gate-btn dopamine-gate-btn-secondary" id="dg-btn-back" style="display: none;">
-            <span class="material-symbols-outlined">arrow_back</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
           </button>
           <button type="button" class="dopamine-gate-btn dopamine-gate-btn-secondary" id="dg-btn-leave">
             Leave site
@@ -576,7 +576,10 @@ function showResult(decision: AIDecision): void {
   formContainer.innerHTML = `
     <div class="dopamine-gate-result ${statusClass}">
       <div class="dopamine-gate-result-icon">
-        <span class="material-symbols-outlined" style="font-size: 64px;">${isBlocked ? 'block' : 'check_circle'}</span>
+        ${isBlocked ?
+      `<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--dg-error)"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>` :
+      `<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--dg-accent)"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`
+    }
       </div>
       <h2 class="dopamine-gate-result-title">${title}</h2>
       <p class="dopamine-gate-result-message">${decision.message}</p>
@@ -586,7 +589,7 @@ function showResult(decision: AIDecision): void {
         <div class="dopamine-gate-actions" style="justify-content: center;">
           <button class="dopamine-gate-btn dopamine-gate-btn-primary" id="dg-btn-proceed">
             Proceed to Site
-            <span class="material-symbols-outlined" style="margin-left: 8px;">arrow_forward</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 8px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
           </button>
         </div>
       `}

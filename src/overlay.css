@@ -103,13 +103,13 @@
   font-size: 24px;
   font-weight: 600;
   margin: 0 0 8px 0;
-  color: var(--dg-text-primary);
+  color: var(--dg-text-primary) !important;
   letter-spacing: -0.01em;
 }
 
 .dopamine-gate-subtitle {
   font-size: 14px;
-  color: var(--dg-text-secondary);
+  color: var(--dg-text-secondary) !important;
   line-height: 1.5;
 }
 
@@ -150,14 +150,14 @@
   display: block;
   font-size: 15px;
   font-weight: 500;
-  color: var(--dg-text-primary);
+  color: var(--dg-text-primary) !important;
   margin-bottom: 12px;
   line-height: 1.4;
 }
 
 .dopamine-gate-hint {
   font-size: 13px;
-  color: var(--dg-text-secondary);
+  color: var(--dg-text-secondary) !important;
   font-weight: 400;
   margin-top: 6px;
   display: block;
@@ -241,23 +241,25 @@
   display: flex;
   align-items: center;
   padding: 14px 20px;
-  background: #f9f9f9;
-  border: 1px solid var(--dg-border);
-  border-radius: var(--dg-radius-md);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
+  background: #f9f9f9 !important;
+  border: 1px solid var(--dg-border) !important;
+  border-radius: var(--dg-radius-md) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #0d0d0d !important;
+  cursor: pointer !important;
   transition: all 0.2s ease;
 }
 
 .dopamine-gate-radio-label:hover {
-  background: #ececec;
+  background: #ececec !important;
 }
 
 .dopamine-gate-radio:checked+.dopamine-gate-radio-label {
-  background: #ffffff;
-  border-color: var(--dg-accent);
-  box-shadow: 0 0 0 1px var(--dg-accent);
+  background: #ffffff !important;
+  border-color: var(--dg-accent) !important;
+  box-shadow: 0 0 0 1px var(--dg-accent) !important;
+  color: var(--dg-accent) !important;
 }
 
 /* ============================================
@@ -287,18 +289,18 @@
 }
 
 .dopamine-gate-btn-primary {
-  background-color: var(--dg-text-primary);
-  color: white;
+  background-color: var(--dg-text-primary) !important;
+  color: white !important;
 }
 
 .dopamine-gate-btn-primary:hover {
-  background-color: #212121;
+  background-color: #212121 !important;
 }
 
 .dopamine-gate-btn-secondary {
-  background-color: #ffffff;
-  border-color: var(--dg-border);
-  color: var(--dg-text-primary);
+  background-color: #ffffff !important;
+  border-color: var(--dg-border) !important;
+  color: var(--dg-text-primary) !important;
 }
 
 .dopamine-gate-btn-secondary:hover {
@@ -327,12 +329,18 @@
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 12px;
+  color: var(--dg-text-primary) !important;
 }
 
 .dopamine-gate-result-message {
   font-size: 14px;
-  color: var(--dg-text-secondary);
+  color: var(--dg-text-secondary) !important;
   line-height: 1.6;
+}
+
+.dopamine-gate-countdown {
+  color: var(--dg-error) !important;
+  font-weight: 500;
 }
 
 .dopamine-gate-counter {

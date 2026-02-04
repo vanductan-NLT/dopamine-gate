@@ -4,6 +4,7 @@
  */
 
 import { getBlocklist, isBlocked } from "./storage.js";
+import { evaluateWithGemini } from "./gemini.js";
 
 // ============================================
 // Tab Navigation Listener
@@ -75,14 +76,26 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
  */
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "CLOSE_TAB") {
-        // Close the tab that sent this message
         if (sender.tab?.id) {
             chrome.tabs.remove(sender.tab.id);
         }
         sendResponse({ success: true });
+    } else if (message.type === "EVALUATE_REFLECTION") {
+        evaluateWithGemini(message.answers)
+            .then(decision => {
+                sendResponse({ success: true, decision });
+            })
+            .catch(error => {
+                console.error("[Dopamine Gate] Proxy Evaluation Error:", error);
+                sendResponse({
+                    success: false,
+                    error: error instanceof Error ? error.message : String(error)
+                });
+            });
+        return true; // Very important: keep channel open for async response
     }
 
-    return true; // Keep channel open for async response
+    return true;
 });
 
 // ============================================

@@ -21,10 +21,7 @@ const TOTAL_STEPS = 6;
 // Asset Injection
 // ============================================
 
-/**
- * Inject Material Symbols and external fonts
- */
-// Material Symbols removed as we use inline SVGs now
+// External assets removed to satisfy strict CSP rules (e.g. Instagram)
 
 // ============================================
 // Main Initialization
@@ -133,7 +130,7 @@ function injectOverlay(): void {
         <p class="dopamine-gate-subtitle">Complete this brief reflection to unlock <strong>${getCurrentDomain()}</strong></p>
       </div>
 
-      <form id="dopamine-gate-reflection-form">
+      <form id="dopamine-gate-reflection-form" novalidate>
         <!-- Question 1: Purpose -->
         <div class="dopamine-gate-step active" data-step="1">
           <div class="dopamine-gate-group">
@@ -469,10 +466,17 @@ async function handleFormSubmit(event: Event): Promise<void> {
 
     // If no client rule applies, ask background (to bypass CSP and protect API Key context)
     if (!decision) {
-      const response = await chrome.runtime.sendMessage({
+      // Safety timeout: block if AI doesn't respond in 30s
+      const evaluationPromise = chrome.runtime.sendMessage({
         type: "EVALUATE_REFLECTION",
         answers
       });
+
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("AI Analysis timeout (30s)")), 30000)
+      );
+
+      const response = await Promise.race([evaluationPromise, timeoutPromise]) as any;
 
       if (response && response.success) {
         decision = response.decision;

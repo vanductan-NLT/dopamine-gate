@@ -4,7 +4,7 @@
  * Features Step-by-Step Navigation & Material Icons
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* Fonts: Using system stack for stability and CSP compliance */
 
 :root {
   --dg-bg: #FFFFFF;

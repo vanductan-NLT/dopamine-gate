@@ -24,12 +24,7 @@ const TOTAL_STEPS = 6;
 /**
  * Inject Material Symbols and external fonts
  */
-function injectAssets(): void {
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200";
-  document.head.appendChild(link);
-}
+// Material Symbols removed as we use inline SVGs now
 
 // ============================================
 // Main Initialization
@@ -65,7 +60,7 @@ async function init(): Promise<void> {
     }
 
     // Inject symbols and fonts
-    injectAssets();
+    // Assets are now inline SVGs, no injection needed
 
     // Check if API key is configured
     const apiKey = await getApiKey();

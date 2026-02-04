@@ -74,6 +74,7 @@ export async function evaluateWithGemini(
     };
 
     try {
+        console.log("[Dopamine Gate] Calling Gemini API...");
         const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
             method: "POST",
             headers: {
@@ -126,6 +127,7 @@ export async function evaluateWithGemini(
         }
 
         const data = await response.json();
+        console.log("[Dopamine Gate] Gemini response received successfully.");
 
         // Extract text response from Gemini
         const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;

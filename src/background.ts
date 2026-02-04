@@ -75,14 +75,21 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
  * Handle messages from content scripts
  */
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log(`[Dopamine Gate] Action received: ${message.type}`);
+
     if (message.type === "CLOSE_TAB") {
         if (sender.tab?.id) {
             chrome.tabs.remove(sender.tab.id);
         }
         sendResponse({ success: true });
-    } else if (message.type === "EVALUATE_REFLECTION") {
+        return false; // Sync response
+    }
+
+    if (message.type === "EVALUATE_REFLECTION") {
+        console.log("[Dopamine Gate] Starting proxy evaluation for:", sender.url);
         evaluateWithGemini(message.answers)
             .then(decision => {
+                console.log("[Dopamine Gate] Evaluation success:", decision.decision);
                 sendResponse({ success: true, decision });
             })
             .catch(error => {
@@ -92,10 +99,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     error: error instanceof Error ? error.message : String(error)
                 });
             });
-        return true; // Very important: keep channel open for async response
+        return true; // Keep channel open for async response
     }
 
-    return true;
+    return false; // Default: closed
 });
 
 // ============================================

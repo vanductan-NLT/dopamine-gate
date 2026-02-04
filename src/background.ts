@@ -13,39 +13,40 @@ import { getBlocklist, isBlocked } from "./storage.js";
  * Listen for tab updates to detect navigation to blocked sites
  */
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    // Only act when page has completed loading
-    if (changeInfo.status !== "complete") return;
-
-    // Ensure we have a valid URL
-    if (!tab.url) return;
+    // We check whenever the URL changes or the page is loading
+    const url = changeInfo.url || tab.url;
+    if (!url) return;
 
     // Skip chrome:// and extension pages
-    if (tab.url.startsWith("chrome://") || tab.url.startsWith("chrome-extension://")) {
+    if (url.startsWith("chrome://") || url.startsWith("chrome-extension://")) {
         return;
     }
 
     try {
-        // Get current blocklist
         const blocklist = await getBlocklist();
 
         // Check if URL matches blocked domain
-        if (isBlocked(tab.url, blocklist)) {
-            console.log(`[Dopamine Gate] Blocked domain detected: ${tab.url}`);
+        if (isBlocked(url, blocklist)) {
+            console.log(`[Dopamine Gate] Blocked domain detected: ${url}`);
 
-            // Inject content script to show overlay
-            await chrome.scripting.executeScript({
-                target: { tabId },
-                files: ["contentScript.js"],
-            });
-
-            // Inject CSS for overlay
+            // Always try to inject CSS first
             await chrome.scripting.insertCSS({
                 target: { tabId },
                 files: ["overlay.css"],
             });
+
+            // Inject content script. 
+            // The content script itself has a check (isOverlayInjected) 
+            // so it won't show the form twice even if injected multiple times.
+            await chrome.scripting.executeScript({
+                target: { tabId },
+                files: ["contentScript.js"],
+            });
         }
-    } catch (error) {
-        console.error("[Dopamine Gate] Error checking blocked status:", error);
+    } catch (error: any) {
+        // This error often happens if the tab is closed during injection, which is fine
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.debug("[Dopamine Gate] Injection noise:", errorMessage);
     }
 });
 

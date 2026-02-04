@@ -19,8 +19,8 @@ import type { LogEntry } from "./types.js";
 // ============================================
 
 // Tabs
-const tabs = document.querySelectorAll(".popup-tab");
-const panels = document.querySelectorAll(".popup-panel");
+const tabs = document.querySelectorAll(".tab-btn");
+const panels = document.querySelectorAll(".tab-content");
 
 // Blocklist
 const newDomainInput = document.getElementById("new-domain") as HTMLInputElement;
@@ -78,8 +78,8 @@ async function loadBlocklist(): Promise<void> {
             (domain) => `
       <li class="domain-item">
         <span class="domain-name">${escapeHtml(domain)}</span>
-        <button class="domain-remove" data-domain="${escapeHtml(domain)}" title="Remove">
-          ✕
+        <button class="btn-remove" data-domain="${escapeHtml(domain)}" title="Remove">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
       </li>
     `
@@ -87,9 +87,9 @@ async function loadBlocklist(): Promise<void> {
         .join("");
 
     // Add remove handlers
-    domainList.querySelectorAll(".domain-remove").forEach((btn) => {
+    domainList.querySelectorAll(".btn-remove").forEach((btn) => {
         btn.addEventListener("click", async (e) => {
-            const domain = (e.target as HTMLElement).getAttribute("data-domain");
+            const domain = btn.getAttribute("data-domain");
             if (domain) {
                 await removeDomain(domain);
                 await loadBlocklist();
@@ -133,7 +133,7 @@ async function loadApiKey(): Promise<void> {
 
     if (apiKeyInput && apiKey) {
         apiKeyInput.value = apiKey;
-        showStatus("API key đã được cấu hình", "success");
+        showStatus("API configuration active", "success");
     }
 }
 
@@ -145,7 +145,9 @@ toggleKeyBtn?.addEventListener("click", () => {
         const isPassword = apiKeyInput.type === "password";
         apiKeyInput.type = isPassword ? "text" : "password";
         if (toggleKeyBtn) {
-            toggleKeyBtn.textContent = isPassword ? "🙈" : "👁️";
+            toggleKeyBtn.innerHTML = isPassword
+                ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`
+                : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
         }
     }
 });
@@ -157,18 +159,17 @@ saveKeyBtn?.addEventListener("click", async () => {
     const key = apiKeyInput?.value.trim();
 
     if (!key) {
-        showStatus("Vui lòng nhập API key", "error");
+        showStatus("Please enter an API key", "error");
         return;
     }
 
-    // Basic validation
     if (!key.startsWith("AIza")) {
-        showStatus("API key không hợp lệ (phải bắt đầu bằng AIza...)", "error");
+        showStatus("Invalid key format (should start with AIza...)", "error");
         return;
     }
 
     await setApiKey(key);
-    showStatus("API key đã được lưu thành công!", "success");
+    showStatus("API configuration saved successfully", "success");
 });
 
 /**
@@ -211,14 +212,19 @@ async function loadLogs(): Promise<void> {
             const date = new Date(log.timestamp);
             const timeStr = formatDate(date);
             const statusClass = log.aiDecision.decision;
-            const statusText = log.aiDecision.decision === "allow" ? "Cho phép" : "Chặn";
+            const statusText = log.aiDecision.decision === "allow" ? "ALLOWED" : "BLOCKED";
 
             return `
-        <li class="log-item ${statusClass}">
-          <div class="log-domain">${escapeHtml(log.domain)}</div>
-          <div class="log-time">${timeStr}</div>
-          <div class="log-decision ${statusClass}">${statusText}: ${escapeHtml(log.aiDecision.message.slice(0, 50))}...</div>
-        </li>
+        <div class="log-item">
+          <div class="log-meta">
+            <span class="log-domain">${escapeHtml(log.domain)}</span>
+            <span>${timeStr}</span>
+          </div>
+          <p class="log-message">
+            <span class="log-status ${statusClass}">${statusText}</span>: 
+            ${escapeHtml(log.aiDecision.message)}
+          </p>
+        </div>
       `;
         })
         .join("");
@@ -228,7 +234,7 @@ async function loadLogs(): Promise<void> {
  * Clear all logs
  */
 clearLogsBtn?.addEventListener("click", async () => {
-    if (confirm("Bạn có chắc muốn xóa tất cả lịch sử?")) {
+    if (confirm("Are you sure you want to clear your reflection history?")) {
         await clearLogs();
         await loadLogs();
     }
@@ -257,12 +263,12 @@ function formatDate(date: Date): string {
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 1) return "Vừa xong";
-    if (diffMins < 60) return `${diffMins} phút trước`;
-    if (diffHours < 24) return `${diffHours} giờ trước`;
-    if (diffDays < 7) return `${diffDays} ngày trước`;
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
 
-    return date.toLocaleDateString("vi-VN");
+    return date.toLocaleDateString("en-US");
 }
 
 // ============================================

@@ -71,7 +71,7 @@ function injectOverlay(): void {
           <img src="${chrome.runtime.getURL('icons/icon128.png')}" alt="Logo" style="width: 80px; height: 80px; margin-bottom: 16px;">
         </div>
         <h1 class="dopamine-gate-title">Dopamine Gate</h1>
-        <p class="dopamine-gate-subtitle">Hít thở sâu. Suy nghĩ trước khi hành động.</p>
+        <p class="dopamine-gate-subtitle">Take a deep breath. Reflect before you act.</p>
         <span class="dopamine-gate-domain">${getCurrentDomain()}</span>
       </div>
 
@@ -79,14 +79,14 @@ function injectOverlay(): void {
         <!-- Question 1: Purpose -->
         <div class="dopamine-gate-group">
           <label class="dopamine-gate-label">
-            1) Tao vào đây để làm gì?
-            <span class="dopamine-gate-hint">(Tìm thông tin? Trả lời ai? Hay chỉ muốn trốn việc?)</span>
+            1) What is my primary objective for this session?
+            <span class="dopamine-gate-hint">(Information gathering? Responding to someone? Or avoiding work?)</span>
           </label>
           <textarea 
             class="dopamine-gate-textarea" 
             id="dg-reason" 
             name="reason"
-            placeholder="Nếu không trả lời rõ -> đang nghiện dopamine..."
+            placeholder="Focus is key. Be specific..."
             required
           ></textarea>
           <div class="dopamine-gate-counter" id="dg-reason-counter">0/20</div>
@@ -95,14 +95,14 @@ function injectOverlay(): void {
         <!-- Question 2: Specific Goal -->
         <div class="dopamine-gate-group">
           <label class="dopamine-gate-label">
-            2) Mục tiêu cụ thể của lần lướt này là gì?
-            <span class="dopamine-gate-hint">(Xem 3 bài rồi thoát? Tìm 1 idea? Check tin nhắn?)</span>
+            2) Define a measurable endpoint for this visit.
+            <span class="dopamine-gate-hint">(Ex: Check 3 notifications and leave? Find 1 specific insight?)</span>
           </label>
           <textarea 
             class="dopamine-gate-textarea" 
             id="dg-goal-target" 
             name="goalTarget"
-            placeholder="Không có mục tiêu = bị thuật toán điều khiển..."
+            placeholder="No target = mindless scrolling..."
             required
           ></textarea>
         </div>
@@ -110,14 +110,14 @@ function injectOverlay(): void {
         <!-- Question 3: Alternative -->
         <div class="dopamine-gate-group">
           <label class="dopamine-gate-label">
-            3) Nếu không vào MXH, tao sẽ làm gì thay thế?
-            <span class="dopamine-gate-hint">(Code? Đọc tài liệu? Nghỉ ngơi thật sự?)</span>
+            3) What high-value activity am I currently displacing?
+            <span class="dopamine-gate-hint">(Deep work? Reading? True rest?)</span>
           </label>
           <textarea 
             class="dopamine-gate-textarea" 
             id="dg-alternative" 
             name="alternativeAction"
-            placeholder="Nếu cái thay thế tốt hơn -> vào MXH là tự phá mình..."
+            placeholder="Identify the opportunity cost..."
             required
           ></textarea>
           <div class="dopamine-gate-counter" id="dg-alternative-counter">0/20</div>
@@ -126,52 +126,52 @@ function injectOverlay(): void {
         <!-- Question 4: Outcome -->
         <div class="dopamine-gate-group">
           <label class="dopamine-gate-label">
-            4) 10 phút nữa tao muốn nhận được gì?
-            <span class="dopamine-gate-hint">(Kiến thức? Giải trí thật sự? Hay chỉ trống rỗng?)</span>
+            4) Expected sentiment in 10 minutes?
+            <span class="dopamine-gate-hint">(Knowledge gained? True relaxation? Or cognitive fatigue?)</span>
           </label>
           <select class="dopamine-gate-select" id="dg-outcome" name="outcome" required>
-            <option value="">Chọn một...</option>
-            <option value="Knowledge">📚 Kiến thức</option>
-            <option value="Real Entertainment">🎮 Giải trí thật sự</option>
-            <option value="Emptiness">🕳️ Trống rỗng (Dopamine giả)</option>
+            <option value="">Select an outcome...</option>
+            <option value="Knowledge">📚 Learning / Insight</option>
+            <option value="Real Entertainment">🎮 Meaningful Recreation</option>
+            <option value="Emptiness">🕳️ Empty Dopamine / Fatigue</option>
           </select>
         </div>
 
         <!-- Question 5: Need level -->
         <div class="dopamine-gate-group">
           <label class="dopamine-gate-label">
-            5) Tao đang cần dopamine hay cần thông tin?
+            5) Am I seeking utility or stimulation?
           </label>
           <div class="dopamine-gate-radios">
             <input type="radio" class="dopamine-gate-radio" id="dg-need-info" name="needType" value="Information" required>
-            <label class="dopamine-gate-radio-label" for="dg-need-info">ℹ️ Cần thông tin</label>
+            <label class="dopamine-gate-radio-label" for="dg-need-info">ℹ️ Utility / Information</label>
             
             <input type="radio" class="dopamine-gate-radio" id="dg-need-dopamine" name="needType" value="Dopamine">
-            <label class="dopamine-gate-radio-label" for="dg-need-dopamine">⚡ Cần Dopamine (Mệt/Chán)</label>
+            <label class="dopamine-gate-radio-label" for="dg-need-dopamine">⚡ Stimulation / Dopamine</label>
           </div>
         </div>
 
         <!-- Question 6: Future feeling -->
         <div class="dopamine-gate-group">
           <label class="dopamine-gate-label">
-            6) Nếu lướt 30 phút, tương lai tao sẽ cảm thấy sao?
+            6) If I spend 30 minutes here, how will I feel afterwards?
           </label>
           <div class="dopamine-gate-radios">
             <input type="radio" class="dopamine-gate-radio" id="dg-future-good" name="futureFeeling" value="Good" required>
-            <label class="dopamine-gate-radio-label" for="dg-future-good">✅ Ổn, đáng</label>
+            <label class="dopamine-gate-radio-label" for="dg-future-good">✅ Aligned & Satisfied</label>
             
             <input type="radio" class="dopamine-gate-radio" id="dg-future-bad" name="futureFeeling" value="Waste">
-            <label class="dopamine-gate-radio-label" for="dg-future-bad">費 Vãi, phí thời gian</label>
+            <label class="dopamine-gate-radio-label" for="dg-future-bad">⚠️ Regretful & Wasted</label>
           </div>
         </div>
 
         <!-- Actions -->
         <div class="dopamine-gate-actions">
           <button type="button" class="dopamine-gate-btn dopamine-gate-btn-secondary" id="dg-btn-leave">
-            ← Rời đi
+            Leave Page
           </button>
           <button type="submit" class="dopamine-gate-btn dopamine-gate-btn-primary" id="dg-btn-submit">
-            Đánh giá →
+            Evaluate Intent
           </button>
         </div>
       </form>
@@ -199,13 +199,13 @@ function injectApiKeyWarning(): void {
     <div class="dopamine-gate-form">
       <div class="dopamine-gate-result blocked">
         <div class="dopamine-gate-result-icon">⚠️</div>
-        <h2 class="dopamine-gate-result-title">API Key Chưa Được Cấu Hình</h2>
+        <h2 class="dopamine-gate-result-title">Configuration Required</h2>
         <p class="dopamine-gate-result-message">
-          Vui lòng click vào icon extension và thêm Gemini API Key trong tab Settings.
+          Please provide your Gemini API Key in the extension settings to enable intelligent reflection evaluation.
         </p>
         <div class="dopamine-gate-actions" style="justify-content: center;">
           <button class="dopamine-gate-btn dopamine-gate-btn-secondary" id="dg-btn-close-warning">
-            Đóng tab này
+            Close Tab
           </button>
         </div>
       </div>
@@ -373,7 +373,7 @@ function showLoading(): void {
   formContainer.innerHTML = `
     <div class="dopamine-gate-loading">
       <div class="dopamine-gate-spinner"></div>
-      <p class="dopamine-gate-loading-text">Đang phân tích quyết định của bạn...</p>
+      <p class="dopamine-gate-loading-text">Analyzing your response...</p>
     </div>
   `;
 }
@@ -386,21 +386,20 @@ function showResult(decision: AIDecision): void {
   if (!formContainer) return;
 
   const isBlocked = decision.decision === "block";
-  const icon = isBlocked ? "🚫" : "✅";
-  const title = isBlocked ? "Truy Cập Bị Chặn" : "Truy Cập Được Phép";
+  const title = isBlocked ? "Access Blocked" : "Access Allowed";
   const statusClass = isBlocked ? "blocked" : "allowed";
 
   formContainer.innerHTML = `
     <div class="dopamine-gate-result ${statusClass}">
-      <div class="dopamine-gate-result-icon">${icon}</div>
+      <div class="dopamine-gate-result-icon">${isBlocked ? '✕' : '✓'}</div>
       <h2 class="dopamine-gate-result-title">${title}</h2>
       <p class="dopamine-gate-result-message">${decision.message}</p>
       ${isBlocked ? `
-        <p class="dopamine-gate-countdown">Tab sẽ đóng sau <span id="dg-countdown">5</span> giây...</p>
+        <p class="dopamine-gate-countdown">Tab will close in <span id="dg-countdown">5</span> seconds...</p>
       ` : `
         <div class="dopamine-gate-actions" style="justify-content: center;">
           <button class="dopamine-gate-btn dopamine-gate-btn-primary" id="dg-btn-proceed">
-            Tiếp tục →
+            Proceed to Site →
           </button>
         </div>
       `}

@@ -5,12 +5,13 @@
   "scripts": {
     "clean": "node -e \"const fs=require('fs'); if(fs.existsSync('dist')) fs.rmSync('dist', {recursive:true})\"",
     "copy:static": "node scripts/build.js",
-    "build:ts": "tsc",
-    "build": "npm run clean && npm run build:ts && npm run copy:static",
-    "watch": "tsc --watch"
+    "bundle": "esbuild src/background.ts src/contentScript.ts src/popup.ts --bundle --outdir=dist --target=chrome90 --minify --sourcemap",
+    "build": "npm run clean && npm run bundle && npm run copy:static",
+    "watch": "esbuild src/background.ts src/contentScript.ts src/popup.ts --bundle --outdir=dist --target=chrome90 --watch"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.260",
+    "esbuild": "^0.27.2",
     "typescript": "^5.3.3"
   },
   "keywords": [

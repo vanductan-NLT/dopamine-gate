@@ -1,7 +1,24 @@
 /**
- * Dopamine Gate - Overlay Styles
- * Full-screen reflection form overlay
+ * Dopamine Gate - OpenAI Style Overlay
+ * Professional, Minimalist, High-Focus
  */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --dg-bg: #FFFFFF;
+  --dg-text-primary: #000000;
+  --dg-text-secondary: #6B7280;
+  --dg-accent: #10A37F;
+  /* OpenAI Green */
+  --dg-error: #EF4444;
+  --dg-border: #E5E7EB;
+  --dg-input-bg: #FFFFFF;
+  --dg-overlay-bg: rgba(0, 0, 0, 0.4);
+  --dg-radius-lg: 12px;
+  --dg-radius-md: 8px;
+  --dg-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
 
 /* ============================================
    Overlay Container
@@ -13,20 +30,16 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0f0f23 100%);
-  z-index: 2147483647; /* Maximum z-index */
+  background: var(--dg-overlay-bg);
+  backdrop-filter: blur(8px);
+  z-index: 2147483647;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  color: #ffffff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--dg-text-primary);
   overflow-y: auto;
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-/* Block all interaction with underlying page */
-.dopamine-gate-overlay * {
+  padding: 24px;
   box-sizing: border-box;
 }
 
@@ -35,16 +48,26 @@
    ============================================ */
 
 .dopamine-gate-form {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 24px;
+  background: var(--dg-bg);
+  border: 1px solid var(--dg-border);
+  border-radius: var(--dg-radius-lg);
   padding: 40px;
-  max-width: 600px;
+  max-width: 520px;
   width: 100%;
-  box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(255, 255, 255, 0.05);
+  box-shadow: var(--dg-shadow);
+  animation: dg-scale-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dg-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 /* ============================================
@@ -57,38 +80,43 @@
 }
 
 .dopamine-gate-logo {
-  font-size: 48px;
-  margin-bottom: 16px;
+  margin: 0 auto 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.dopamine-gate-logo img {
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(16, 163, 127, 0.1);
 }
 
 .dopamine-gate-title {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 700;
   margin: 0 0 8px 0;
-  background: linear-gradient(135deg, #a78bfa 0%, #f472b6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  letter-spacing: -0.02em;
 }
 
 .dopamine-gate-subtitle {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.6);
-  margin: 0;
+  color: var(--dg-text-secondary);
+  line-height: 1.5;
 }
 
 .dopamine-gate-domain {
   display: inline-block;
-  background: rgba(251, 146, 60, 0.2);
-  color: #fb923c;
+  background: #F3F4F6;
+  color: var(--dg-text-secondary);
   padding: 4px 12px;
-  border-radius: 20px;
+  border-radius: 6px;
   font-size: 13px;
-  margin-top: 12px;
+  font-weight: 500;
+  margin-top: 16px;
+  border: 1px solid var(--dg-border);
 }
 
 /* ============================================
-   Form Groups
+   Form Elements
    ============================================ */
 
 .dopamine-gate-group {
@@ -99,74 +127,64 @@
   display: block;
   font-size: 14px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--dg-text-primary);
   margin-bottom: 8px;
 }
 
 .dopamine-gate-hint {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--dg-text-secondary);
   font-weight: 400;
-  margin-left: 8px;
+  margin-top: 4px;
+  display: block;
 }
-
-/* ============================================
-   Form Inputs
-   ============================================ */
 
 .dopamine-gate-textarea {
   width: 100%;
-  min-height: 80px;
-  padding: 14px 16px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  color: #ffffff;
+  min-height: 90px;
+  padding: 12px 14px;
+  background: var(--dg-input-bg);
+  border: 1px solid var(--dg-border);
+  border-radius: var(--dg-radius-md);
+  color: var(--dg-text-primary);
   font-size: 14px;
-  line-height: 1.5;
-  resize: vertical;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  line-height: 1.6;
+  resize: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
 .dopamine-gate-textarea:focus {
   outline: none;
-  border-color: #a78bfa;
-  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.2);
-}
-
-.dopamine-gate-textarea::placeholder {
-  color: rgba(255, 255, 255, 0.3);
+  border-color: var(--dg-accent);
+  box-shadow: 0 0 0 4px rgba(16, 163, 127, 0.1);
 }
 
 .dopamine-gate-select {
   width: 100%;
-  padding: 14px 16px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  color: #ffffff;
+  padding: 12px 14px;
+  background: var(--dg-input-bg);
+  border: 1px solid var(--dg-border);
+  border-radius: var(--dg-radius-md);
+  color: var(--dg-text-primary);
   font-size: 14px;
   cursor: pointer;
+  transition: all 0.2s ease;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
-  background-size: 20px;
+  background-size: 16px;
 }
 
 .dopamine-gate-select:focus {
   outline: none;
-  border-color: #a78bfa;
-  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.2);
-}
-
-.dopamine-gate-select option {
-  background: #1a1a3e;
-  color: #ffffff;
+  border-color: var(--dg-accent);
+  box-shadow: 0 0 0 4px rgba(16, 163, 127, 0.1);
 }
 
 /* ============================================
-   Radio Buttons
+   Radio Options
    ============================================ */
 
 .dopamine-gate-radios {
@@ -183,24 +201,28 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 20px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  padding: 10px 16px;
+  background: #F9FAFB;
+  border: 1px solid var(--dg-border);
+  border-radius: var(--dg-radius-md);
   font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  flex: 1;
+  min-width: 140px;
 }
 
 .dopamine-gate-radio-label:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: #F3F4F6;
+  border-color: #D1D5DB;
 }
 
-.dopamine-gate-radio:checked + .dopamine-gate-radio-label {
-  background: rgba(167, 139, 250, 0.2);
-  border-color: #a78bfa;
-  color: #a78bfa;
+.dopamine-gate-radio:checked+.dopamine-gate-radio-label {
+  background: #FFFFFF;
+  border-color: var(--dg-accent);
+  color: var(--dg-accent);
+  box-shadow: 0 0 0 1px var(--dg-accent);
 }
 
 /* ============================================
@@ -215,93 +237,48 @@
 
 .dopamine-gate-btn {
   flex: 1;
-  padding: 16px 24px;
-  border: none;
-  border-radius: 12px;
-  font-size: 16px;
+  padding: 12px 20px;
+  border: 1px solid transparent;
+  border-radius: var(--dg-radius-md);
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .dopamine-gate-btn-primary {
-  background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
-  color: #ffffff;
+  background-color: var(--dg-accent);
+  color: white;
 }
 
 .dopamine-gate-btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.5);
-}
-
-.dopamine-gate-btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+  background-color: #0E8C6D;
 }
 
 .dopamine-gate-btn-secondary {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.7);
+  background-color: white;
+  border-color: var(--dg-border);
+  color: var(--dg-text-primary);
 }
 
 .dopamine-gate-btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
+  background-color: #F9FAFB;
+  border-color: #D1D5DB;
 }
 
 /* ============================================
-   Error & Validation
-   ============================================ */
-
-.dopamine-gate-error {
-  color: #f87171;
-  font-size: 12px;
-  margin-top: 6px;
-  display: none;
-}
-
-.dopamine-gate-error.visible {
-  display: block;
-}
-
-.dopamine-gate-textarea.invalid,
-.dopamine-gate-select.invalid {
-  border-color: #f87171;
-}
-
-/* ============================================
-   Character Counter
-   ============================================ */
-
-.dopamine-gate-counter {
-  text-align: right;
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.4);
-  margin-top: 4px;
-}
-
-.dopamine-gate-counter.warning {
-  color: #fbbf24;
-}
-
-.dopamine-gate-counter.valid {
-  color: #34d399;
-}
-
-/* ============================================
-   Result Overlay
+   Result & Loading
    ============================================ */
 
 .dopamine-gate-result {
   text-align: center;
-  padding: 60px 40px;
 }
 
 .dopamine-gate-result-icon {
-  font-size: 72px;
+  font-size: 64px;
   margin-bottom: 24px;
 }
 
@@ -309,70 +286,61 @@
   font-size: 24px;
   font-weight: 700;
   margin: 0 0 16px 0;
+  letter-spacing: -0.02em;
 }
 
 .dopamine-gate-result-message {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: 15px;
+  color: var(--dg-text-secondary);
   line-height: 1.6;
-  margin: 0 0 24px 0;
-}
-
-.dopamine-gate-result.blocked .dopamine-gate-result-title {
-  color: #f87171;
-}
-
-.dopamine-gate-result.allowed .dopamine-gate-result-title {
-  color: #34d399;
+  margin: 0;
 }
 
 .dopamine-gate-countdown {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+  color: var(--dg-text-secondary);
+  margin-top: 24px;
+  font-weight: 500;
 }
-
-/* ============================================
-   Loading State
-   ============================================ */
 
 .dopamine-gate-loading {
   text-align: center;
-  padding: 60px 40px;
 }
 
 .dopamine-gate-spinner {
-  width: 48px;
-  height: 48px;
-  border: 3px solid rgba(255, 255, 255, 0.1);
-  border-top-color: #a78bfa;
+  width: 32px;
+  height: 32px;
+  border: 2px solid #E5E7EB;
+  border-top-color: var(--dg-accent);
   border-radius: 50%;
-  animation: dopamine-gate-spin 0.8s linear infinite;
-  margin: 0 auto 24px;
+  animation: dg-spin 0.6s linear infinite;
+  margin: 0 auto 20px;
 }
 
-@keyframes dopamine-gate-spin {
+@keyframes dg-spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-.dopamine-gate-loading-text {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.7);
+.dopamine-gate-counter {
+  text-align: right;
+  font-size: 11px;
+  color: var(--dg-text-secondary);
+  margin-top: 4px;
 }
 
-/* ============================================
-   Responsive
-   ============================================ */
+.dopamine-gate-counter.valid {
+  color: var(--dg-accent);
+}
 
-@media (max-width: 600px) {
+.dopamine-gate-counter.warning {
+  color: #D97706;
+}
+
+@media (max-width: 480px) {
   .dopamine-gate-form {
     padding: 24px;
-    border-radius: 16px;
-  }
-
-  .dopamine-gate-title {
-    font-size: 22px;
   }
 
   .dopamine-gate-radios {

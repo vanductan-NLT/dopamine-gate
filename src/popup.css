@@ -1,0 +1,412 @@
+/**
+ * Dopamine Gate - Popup Styles
+ * Settings panel styling
+ */
+
+/* ============================================
+   Base Styles
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%);
+    color: #ffffff;
+    min-width: 360px;
+    max-width: 400px;
+}
+
+a {
+    color: #a78bfa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* ============================================
+   Container
+   ============================================ */
+
+.popup-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 400px;
+    max-height: 500px;
+}
+
+/* ============================================
+   Header
+   ============================================ */
+
+.popup-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.popup-logo {
+    font-size: 28px;
+}
+
+.popup-title {
+    font-size: 18px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #a78bfa 0%, #f472b6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ============================================
+   Tabs
+   ============================================ */
+
+.popup-tabs {
+    display: flex;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 4px;
+    gap: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.popup-tab {
+    flex: 1;
+    padding: 10px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.popup-tab:hover {
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.popup-tab.active {
+    color: #ffffff;
+    background: rgba(167, 139, 250, 0.2);
+}
+
+/* ============================================
+   Content Panels
+   ============================================ */
+
+.popup-content {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.popup-panel {
+    display: none;
+    padding: 16px 20px;
+}
+
+.popup-panel.active {
+    display: block;
+}
+
+.panel-section {
+    margin-bottom: 20px;
+}
+
+.panel-section:last-child {
+    margin-bottom: 0;
+}
+
+.panel-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 4px;
+}
+
+.panel-desc {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+/* ============================================
+   Form Elements
+   ============================================ */
+
+.input-field {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 13px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: #a78bfa;
+    box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.2);
+}
+
+.input-field::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================
+   Buttons
+   ============================================ */
+
+.btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.btn-icon {
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-icon:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-full {
+    width: 100%;
+    margin-top: 8px;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 11px;
+}
+
+/* ============================================
+   Add Domain Form
+   ============================================ */
+
+.add-domain-form {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.add-domain-form .input-field {
+    flex: 1;
+}
+
+.add-domain-form .btn {
+    padding: 10px 14px;
+    font-size: 16px;
+}
+
+/* ============================================
+   Domain List
+   ============================================ */
+
+.domain-list {
+    list-style: none;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.domain-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    margin-bottom: 6px;
+}
+
+.domain-item:last-child {
+    margin-bottom: 0;
+}
+
+.domain-name {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.domain-remove {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.domain-remove:hover {
+    background: rgba(248, 113, 113, 0.2);
+    color: #f87171;
+}
+
+/* ============================================
+   API Key Form
+   ============================================ */
+
+.api-key-form {
+    display: flex;
+    gap: 8px;
+}
+
+.api-key-form .input-field {
+    flex: 1;
+}
+
+.status-message {
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    display: none;
+}
+
+.status-message.success {
+    display: block;
+    background: rgba(52, 211, 153, 0.1);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    color: #34d399;
+}
+
+.status-message.error {
+    display: block;
+    background: rgba(248, 113, 113, 0.1);
+    border: 1px solid rgba(248, 113, 113, 0.3);
+    color: #f87171;
+}
+
+.version {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.3);
+    margin-top: 8px;
+}
+
+/* ============================================
+   Logs
+   ============================================ */
+
+.logs-actions {
+    margin-bottom: 12px;
+}
+
+.logs-list {
+    list-style: none;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.logs-empty {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 12px;
+    padding: 20px;
+}
+
+.log-item {
+    padding: 10px 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    margin-bottom: 6px;
+    border-left: 3px solid;
+}
+
+.log-item.allowed {
+    border-left-color: #34d399;
+}
+
+.log-item.blocked {
+    border-left-color: #f87171;
+}
+
+.log-domain {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.log-time {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 2px;
+}
+
+.log-decision {
+    font-size: 11px;
+    margin-top: 4px;
+}
+
+.log-decision.allowed {
+    color: #34d399;
+}
+
+.log-decision.blocked {
+    color: #f87171;
+}
+
+/* ============================================
+   Scrollbar
+   ============================================ */
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}

@@ -1,0 +1,24 @@
+{
+  "name": "dopamine-gate",
+  "version": "1.0.0",
+  "description": "Chrome extension that blocks distracting websites with AI-powered reflection prompts",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "copy:static": "cp -r src/icons dist/ && cp src/*.html dist/ && cp src/*.css dist/ && cp manifest.json dist/",
+    "build:ts": "tsc",
+    "build": "npm run clean && mkdir dist && npm run build:ts && npm run copy:static",
+    "watch": "tsc --watch"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.260",
+    "typescript": "^5.3.3"
+  },
+  "keywords": [
+    "chrome-extension",
+    "productivity",
+    "mindfulness",
+    "gemini-ai"
+  ],
+  "author": "",
+  "license": "MIT"
+}

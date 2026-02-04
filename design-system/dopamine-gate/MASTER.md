@@ -7,8 +7,8 @@
 ---
 
 **Project:** Dopamine Gate
-**Generated:** 2026-02-04 20:49:49
-**Category:** Productivity Tool
+**Generated:** 2026-02-04 21:04:50
+**Category:** Quantum Computing Interface
 
 ---
 
@@ -18,24 +18,24 @@
 
 | Role | Hex | CSS Variable |
 |------|-----|--------------|
-| Primary | `#0D9488` | `--color-primary` |
-| Secondary | `#14B8A6` | `--color-secondary` |
-| CTA/Accent | `#F97316` | `--color-cta` |
-| Background | `#F0FDFA` | `--color-background` |
-| Text | `#134E4A` | `--color-text` |
+| Primary | `#0891B2` | `--color-primary` |
+| Secondary | `#22D3EE` | `--color-secondary` |
+| CTA/Accent | `#22C55E` | `--color-cta` |
+| Background | `#ECFEFF` | `--color-background` |
+| Text | `#164E63` | `--color-text` |
 
-**Color Notes:** Teal focus + action orange
+**Color Notes:** Fresh cyan + clean green
 
 ### Typography
 
-- **Heading Font:** Plus Jakarta Sans
-- **Body Font:** Plus Jakarta Sans
-- **Mood:** friendly, modern, saas, clean, approachable, professional
-- **Google Fonts:** [Plus Jakarta Sans + Plus Jakarta Sans](https://fonts.google.com/share?selection.family=Plus+Jakarta+Sans:wght@300;400;500;600;700)
+- **Heading Font:** Archivo
+- **Body Font:** Space Grotesk
+- **Mood:** minimal, portfolio, designer, creative, clean, artistic
+- **Google Fonts:** [Archivo + Space Grotesk](https://fonts.google.com/share?selection.family=Archivo:wght@300;400;500;600;700|Space+Grotesk:wght@300;400;500;600;700)
 
 **CSS Import:**
 ```css
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 ```
 
 ### Spacing Variables
@@ -68,7 +68,7 @@
 ```css
 /* Primary Button */
 .btn-primary {
-  background: #F97316;
+  background: #22C55E;
   color: white;
   padding: 12px 24px;
   border-radius: 8px;
@@ -85,8 +85,8 @@
 /* Secondary Button */
 .btn-secondary {
   background: transparent;
-  color: #0D9488;
-  border: 2px solid #0D9488;
+  color: #0891B2;
+  border: 2px solid #0891B2;
   padding: 12px 24px;
   border-radius: 8px;
   font-weight: 600;
@@ -99,7 +99,7 @@
 
 ```css
 .card {
-  background: #F0FDFA;
+  background: #ECFEFF;
   border-radius: 12px;
   padding: 24px;
   box-shadow: var(--shadow-md);
@@ -125,9 +125,9 @@
 }
 
 .input:focus {
-  border-color: #0D9488;
+  border-color: #0891B2;
   outline: none;
-  box-shadow: 0 0 0 3px #0D948820;
+  box-shadow: 0 0 0 3px #0891B220;
 }
 ```
 
@@ -153,13 +153,13 @@
 
 ## Style Guidelines
 
-**Style:** Flat Design
+**Style:** Dark Mode (OLED)
 
-**Keywords:** 2D, minimalist, bold colors, no shadows, clean lines, simple shapes, typography-focused, modern, icon-heavy
+**Keywords:** Dark theme, low light, high contrast, deep black, midnight blue, eye-friendly, OLED, night mode, power efficient
 
-**Best For:** Web apps, mobile apps, cross-platform, startup MVPs, user-friendly, SaaS, dashboards, corporate
+**Best For:** Night-mode apps, coding platforms, entertainment, eye-strain prevention, OLED devices, low-light
 
-**Key Effects:** No gradients/shadows, simple hover (color/opacity shift), fast loading, clean transitions (150-200ms ease), minimal icons
+**Key Effects:** Minimal glow (text-shadow: 0 0 10px), dark-to-light transitions, low white emission, high readability, visible focus
 
 ### Page Pattern
 
@@ -173,8 +173,8 @@
 
 ## Anti-Patterns (Do NOT Use)
 
-- ❌ Complex onboarding
-- ❌ Slow performance
+- ❌ Generic tech design
+- ❌ No viz
 
 ### Additional Forbidden Patterns
 

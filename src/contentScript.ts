@@ -13,7 +13,23 @@ import { logDecision, getApiKey } from "./storage.js";
 // ============================================
 
 const MIN_TEXT_LENGTH = 20;
-const CLOSE_DELAY_MS = 5000; // 5 seconds before closing blocked tab
+const CLOSE_DELAY_MS = 5000;
+let currentStep = 1;
+const TOTAL_STEPS = 6;
+
+// ============================================
+// Asset Injection
+// ============================================
+
+/**
+ * Inject Material Symbols and external fonts
+ */
+function injectAssets(): void {
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200";
+  document.head.appendChild(link);
+}
 
 // ============================================
 // Main Initialization
@@ -38,18 +54,51 @@ function getCurrentDomain(): string {
  */
 async function init(): Promise<void> {
   if (isOverlayInjected()) {
-    console.log("[Dopamine Gate] Overlay already injected, skipping");
+    console.log("[Dopamine Gate] Overlay already exists, skipping");
     return;
   }
+
+  // Inject symbols and fonts
+  injectAssets();
 
   // Check if API key is configured
   const apiKey = await getApiKey();
   if (!apiKey) {
     injectApiKeyWarning();
-    return;
+  } else {
+    injectOverlay();
   }
 
-  injectOverlay();
+  // Start observing the DOM to prevent removal (only once)
+  if (!(window as any).dg_observer_active) {
+    setupPersistenceObserver();
+    (window as any).dg_observer_active = true;
+  }
+}
+
+/**
+ * Ensures the overlay remains in the DOM even if the site (like Facebook/YouTube) 
+ * wipes the body or rerenders.
+ */
+function setupPersistenceObserver(): void {
+  const observer = new MutationObserver((mutations) => {
+    // If the overlay is missing, re-inject it
+    if (!isOverlayInjected()) {
+      console.log("[Dopamine Gate] Blocker was removed by site. Re-injecting...");
+      init();
+      return;
+    }
+
+    // Also ensure body overflow is still hidden
+    if (document.body.style.overflow !== "hidden") {
+      document.body.style.overflow = "hidden";
+    }
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  });
 }
 
 // ============================================
@@ -66,112 +115,133 @@ function injectOverlay(): void {
 
   overlay.innerHTML = `
     <div class="dopamine-gate-form" id="dopamine-gate-form">
+      <div class="dopamine-gate-progress-container">
+        <div class="dopamine-gate-progress-bar" id="dg-progress-bar" style="width: ${(1 / TOTAL_STEPS) * 100}%"></div>
+      </div>
+      
       <div class="dopamine-gate-header">
         <div class="dopamine-gate-logo">
-          <img src="${chrome.runtime.getURL('icons/icon128.png')}" alt="Logo" style="width: 80px; height: 80px; margin-bottom: 16px;">
+          <img src="${chrome.runtime.getURL('icons/icon128.png')}" alt="Logo" style="width: 48px; height: 48px; margin-bottom: 12px;">
         </div>
-        <h1 class="dopamine-gate-title">Dopamine Gate</h1>
-        <p class="dopamine-gate-subtitle">Take a deep breath. Reflect before you act.</p>
-        <span class="dopamine-gate-domain">${getCurrentDomain()}</span>
+        <h1 class="dopamine-gate-title">System Check</h1>
+        <p class="dopamine-gate-subtitle">Complete this brief reflection to unlock <strong>${getCurrentDomain()}</strong></p>
       </div>
 
       <form id="dopamine-gate-reflection-form">
         <!-- Question 1: Purpose -->
-        <div class="dopamine-gate-group">
-          <label class="dopamine-gate-label">
-            1) What is my primary objective for this session?
-            <span class="dopamine-gate-hint">(Information gathering? Responding to someone? Or avoiding work?)</span>
-          </label>
-          <textarea 
-            class="dopamine-gate-textarea" 
-            id="dg-reason" 
-            name="reason"
-            placeholder="Focus is key. Be specific..."
-            required
-          ></textarea>
-          <div class="dopamine-gate-counter" id="dg-reason-counter">0/20</div>
+        <div class="dopamine-gate-step active" data-step="1">
+          <div class="dopamine-gate-group">
+            <label class="dopamine-gate-label">
+              1) What is your primary objective for this session?
+              <span class="dopamine-gate-hint">(Information gathering? Responding to someone? Or avoiding work?)</span>
+            </label>
+            <textarea 
+              class="dopamine-gate-textarea" 
+              id="dg-reason" 
+              name="reason"
+              placeholder="Focus is key. Be specific..."
+              required
+            ></textarea>
+            <div class="dopamine-gate-counter" id="dg-reason-counter">0/20</div>
+          </div>
         </div>
 
         <!-- Question 2: Specific Goal -->
-        <div class="dopamine-gate-group">
-          <label class="dopamine-gate-label">
-            2) Define a measurable endpoint for this visit.
-            <span class="dopamine-gate-hint">(Ex: Check 3 notifications and leave? Find 1 specific insight?)</span>
-          </label>
-          <textarea 
-            class="dopamine-gate-textarea" 
-            id="dg-goal-target" 
-            name="goalTarget"
-            placeholder="No target = mindless scrolling..."
-            required
-          ></textarea>
+        <div class="dopamine-gate-step" data-step="2">
+          <div class="dopamine-gate-group">
+            <label class="dopamine-gate-label">
+              2) Define a measurable endpoint for this visit.
+              <span class="dopamine-gate-hint">(Ex: Check 3 notifications and leave? Find 1 specific insight?)</span>
+            </label>
+            <textarea 
+              class="dopamine-gate-textarea" 
+              id="dg-goal-target" 
+              name="goalTarget"
+              placeholder="No target = mindless scrolling..."
+              required
+            ></textarea>
+          </div>
         </div>
 
         <!-- Question 3: Alternative -->
-        <div class="dopamine-gate-group">
-          <label class="dopamine-gate-label">
-            3) What high-value activity am I currently displacing?
-            <span class="dopamine-gate-hint">(Deep work? Reading? True rest?)</span>
-          </label>
-          <textarea 
-            class="dopamine-gate-textarea" 
-            id="dg-alternative" 
-            name="alternativeAction"
-            placeholder="Identify the opportunity cost..."
-            required
-          ></textarea>
-          <div class="dopamine-gate-counter" id="dg-alternative-counter">0/20</div>
+        <div class="dopamine-gate-step" data-step="3">
+          <div class="dopamine-gate-group">
+            <label class="dopamine-gate-label">
+              3) What high-value activity are you currently displacing?
+              <span class="dopamine-gate-hint">(Deep work? Reading? True rest?)</span>
+            </label>
+            <textarea 
+              class="dopamine-gate-textarea" 
+              id="dg-alternative" 
+              name="alternativeAction"
+              placeholder="Identify the opportunity cost..."
+              required
+            ></textarea>
+            <div class="dopamine-gate-counter" id="dg-alternative-counter">0/20</div>
+          </div>
         </div>
 
         <!-- Question 4: Outcome -->
-        <div class="dopamine-gate-group">
-          <label class="dopamine-gate-label">
-            4) Expected sentiment in 10 minutes?
-            <span class="dopamine-gate-hint">(Knowledge gained? True relaxation? Or cognitive fatigue?)</span>
-          </label>
-          <select class="dopamine-gate-select" id="dg-outcome" name="outcome" required>
-            <option value="">Select an outcome...</option>
-            <option value="Knowledge">📚 Learning / Insight</option>
-            <option value="Real Entertainment">🎮 Meaningful Recreation</option>
-            <option value="Emptiness">🕳️ Empty Dopamine / Fatigue</option>
-          </select>
+        <div class="dopamine-gate-step" data-step="4">
+          <div class="dopamine-gate-group">
+            <label class="dopamine-gate-label">
+              4) Expected sentiment in 10 minutes?
+              <span class="dopamine-gate-hint">(Knowledge gained? True relaxation? Or cognitive fatigue?)</span>
+            </label>
+            <select class="dopamine-gate-select" id="dg-outcome" name="outcome" required>
+              <option value="">Select an outcome...</option>
+              <option value="Knowledge">📚 Learning / Insight</option>
+              <option value="Real Entertainment">🎮 Meaningful Recreation</option>
+              <option value="Emptiness">🕳️ Empty Dopamine / Fatigue</option>
+            </select>
+          </div>
         </div>
 
         <!-- Question 5: Need level -->
-        <div class="dopamine-gate-group">
-          <label class="dopamine-gate-label">
-            5) Am I seeking utility or stimulation?
-          </label>
-          <div class="dopamine-gate-radios">
-            <input type="radio" class="dopamine-gate-radio" id="dg-need-info" name="needType" value="Information" required>
-            <label class="dopamine-gate-radio-label" for="dg-need-info">ℹ️ Utility / Information</label>
-            
-            <input type="radio" class="dopamine-gate-radio" id="dg-need-dopamine" name="needType" value="Dopamine">
-            <label class="dopamine-gate-radio-label" for="dg-need-dopamine">⚡ Stimulation / Dopamine</label>
+        <div class="dopamine-gate-step" data-step="5">
+          <div class="dopamine-gate-group">
+            <label class="dopamine-gate-label">
+              5) Are you seeking utility or stimulation?
+            </label>
+            <div class="dopamine-gate-radios">
+              <input type="radio" class="dopamine-gate-radio" id="dg-need-info" name="needType" value="Information" required>
+              <label class="dopamine-gate-radio-label" for="dg-need-info">ℹ️ Utility / Info</label>
+              
+              <input type="radio" class="dopamine-gate-radio" id="dg-need-dopamine" name="needType" value="Dopamine">
+              <label class="dopamine-gate-radio-label" for="dg-need-dopamine">⚡ Stimulation</label>
+            </div>
           </div>
         </div>
 
         <!-- Question 6: Future feeling -->
-        <div class="dopamine-gate-group">
-          <label class="dopamine-gate-label">
-            6) If I spend 30 minutes here, how will I feel afterwards?
-          </label>
-          <div class="dopamine-gate-radios">
-            <input type="radio" class="dopamine-gate-radio" id="dg-future-good" name="futureFeeling" value="Good" required>
-            <label class="dopamine-gate-radio-label" for="dg-future-good">✅ Aligned & Satisfied</label>
-            
-            <input type="radio" class="dopamine-gate-radio" id="dg-future-bad" name="futureFeeling" value="Waste">
-            <label class="dopamine-gate-radio-label" for="dg-future-bad">⚠️ Regretful & Wasted</label>
+        <div class="dopamine-gate-step" data-step="6">
+          <div class="dopamine-gate-group">
+            <label class="dopamine-gate-label">
+              6) If you spend 30 minutes here, how will you feel?
+            </label>
+            <div class="dopamine-gate-radios">
+              <input type="radio" class="dopamine-gate-radio" id="dg-future-good" name="futureFeeling" value="Good" required>
+              <label class="dopamine-gate-radio-label" for="dg-future-good">✅ Aligned</label>
+              
+              <input type="radio" class="dopamine-gate-radio" id="dg-future-bad" name="futureFeeling" value="Waste">
+              <label class="dopamine-gate-radio-label" for="dg-future-bad">⚠️ Regretful</label>
+            </div>
           </div>
         </div>
 
         <!-- Actions -->
         <div class="dopamine-gate-actions">
-          <button type="button" class="dopamine-gate-btn dopamine-gate-btn-secondary" id="dg-btn-leave">
-            Leave Page
+          <button type="button" class="dopamine-gate-btn dopamine-gate-btn-secondary" id="dg-btn-back" style="display: none;">
+            <span class="material-symbols-outlined">arrow_back</span>
           </button>
-          <button type="submit" class="dopamine-gate-btn dopamine-gate-btn-primary" id="dg-btn-submit">
-            Evaluate Intent
+          <button type="button" class="dopamine-gate-btn dopamine-gate-btn-secondary" id="dg-btn-leave">
+            Leave site
+          </button>
+          <button type="button" class="dopamine-gate-btn dopamine-gate-btn-primary" id="dg-btn-next">
+            Next step
+          </button>
+          <button type="submit" class="dopamine-gate-btn dopamine-gate-btn-primary" id="dg-btn-submit" style="display: none;">
+            Evaluate
           </button>
         </div>
       </form>
@@ -179,11 +249,7 @@ function injectOverlay(): void {
   `;
 
   document.body.appendChild(overlay);
-
-  // Prevent scrolling on body
   document.body.style.overflow = "hidden";
-
-  // Setup event listeners
   setupFormListeners();
 }
 
@@ -198,10 +264,12 @@ function injectApiKeyWarning(): void {
   overlay.innerHTML = `
     <div class="dopamine-gate-form">
       <div class="dopamine-gate-result blocked">
-        <div class="dopamine-gate-result-icon">⚠️</div>
-        <h2 class="dopamine-gate-result-title">Configuration Required</h2>
+        <div class="dopamine-gate-result-icon">
+          <span class="material-symbols-outlined" style="font-size: 64px;">settings_heart</span>
+        </div>
+        <h2 class="dopamine-gate-result-title">Setup Required</h2>
         <p class="dopamine-gate-result-message">
-          Please provide your Gemini API Key in the extension settings to enable intelligent reflection evaluation.
+          Please provide your Gemini API Key in the extension settings to enable intelligent reflection tracking.
         </p>
         <div class="dopamine-gate-actions" style="justify-content: center;">
           <button class="dopamine-gate-btn dopamine-gate-btn-secondary" id="dg-btn-close-warning">
@@ -229,21 +297,107 @@ function injectApiKeyWarning(): void {
  */
 function setupFormListeners(): void {
   const form = document.getElementById("dopamine-gate-reflection-form") as HTMLFormElement;
-  const reasonTextarea = document.getElementById("dg-reason") as HTMLTextAreaElement;
-  const alternativeTextarea = document.getElementById("dg-alternative") as HTMLTextAreaElement;
   const leaveBtn = document.getElementById("dg-btn-leave");
+  const nextBtn = document.getElementById("dg-btn-next");
+  const backBtn = document.getElementById("dg-btn-back");
 
   // Character counters
-  setupCharacterCounter(reasonTextarea, "dg-reason-counter");
-  setupCharacterCounter(alternativeTextarea, "dg-alternative-counter");
+  setupCharacterCounter(document.getElementById("dg-reason") as HTMLTextAreaElement, "dg-reason-counter");
+  setupCharacterCounter(document.getElementById("dg-alternative") as HTMLTextAreaElement, "dg-alternative-counter");
 
-  // Leave button - close tab
   leaveBtn?.addEventListener("click", () => {
     chrome.runtime.sendMessage({ type: "CLOSE_TAB" });
   });
 
-  // Form submission
+  nextBtn?.addEventListener("click", () => {
+    if (validateCurrentStep()) {
+      goToStep(currentStep + 1);
+    }
+  });
+
+  backBtn?.addEventListener("click", () => {
+    goToStep(currentStep - 1);
+  });
+
   form?.addEventListener("submit", handleFormSubmit);
+}
+
+/**
+ * Navigate to a specific step
+ */
+function goToStep(step: number): void {
+  if (step < 1 || step > TOTAL_STEPS) return;
+
+  const steps = document.querySelectorAll(".dopamine-gate-step");
+  steps.forEach(s => s.classList.remove("active"));
+
+  const targetStep = document.querySelector(`.dopamine-gate-step[data-step="${step}"]`);
+  targetStep?.classList.add("active");
+
+  currentStep = step;
+  updateUIForStep();
+}
+
+/**
+ * Update buttons and progress bar based on current step
+ */
+function updateUIForStep(): void {
+  const nextBtn = document.getElementById("dg-btn-next");
+  const submitBtn = document.getElementById("dg-btn-submit");
+  const backBtn = document.getElementById("dg-btn-back");
+  const progressBar = document.getElementById("dg-progress-bar");
+
+  if (!nextBtn || !submitBtn || !backBtn || !progressBar) return;
+
+  // Toggle buttons
+  if (currentStep === TOTAL_STEPS) {
+    nextBtn.style.display = "none";
+    submitBtn.style.display = "inline-flex";
+  } else {
+    nextBtn.style.display = "inline-flex";
+    submitBtn.style.display = "none";
+  }
+
+  backBtn.style.display = currentStep > 1 ? "inline-flex" : "none";
+
+  // Update progress
+  progressBar.style.width = `${(currentStep / TOTAL_STEPS) * 100}%`;
+}
+
+/**
+ * Validate only the current visible step
+ */
+function validateCurrentStep(): boolean {
+  const currentStepEl = document.querySelector(`.dopamine-gate-step[data-step="${currentStep}"]`);
+  const inputs = currentStepEl?.querySelectorAll("textarea, select, input[required]") as NodeListOf<HTMLTextAreaElement | HTMLSelectElement | HTMLInputElement>;
+
+  let isValid = true;
+
+  inputs.forEach(input => {
+    if (input.tagName === "TEXTAREA") {
+      if (input.value.length < MIN_TEXT_LENGTH) {
+        input.classList.add("invalid");
+        isValid = false;
+      } else {
+        input.classList.remove("invalid");
+      }
+    } else if (input.tagName === "SELECT") {
+      if (!input.value) {
+        input.classList.add("invalid");
+        isValid = false;
+      } else {
+        input.classList.remove("invalid");
+      }
+    } else if (input.type === "radio") {
+      const name = input.getAttribute("name");
+      const checked = document.querySelector(`input[name="${name}"]:checked`);
+      if (!checked) {
+        isValid = false;
+      }
+    }
+  });
+
+  return isValid;
 }
 
 /**
@@ -373,7 +527,7 @@ function showLoading(): void {
   formContainer.innerHTML = `
     <div class="dopamine-gate-loading">
       <div class="dopamine-gate-spinner"></div>
-      <p class="dopamine-gate-loading-text">Analyzing your response...</p>
+      <p class="dopamine-gate-loading-text">Analyzing your deep reflection...</p>
     </div>
   `;
 }
@@ -391,15 +545,18 @@ function showResult(decision: AIDecision): void {
 
   formContainer.innerHTML = `
     <div class="dopamine-gate-result ${statusClass}">
-      <div class="dopamine-gate-result-icon">${isBlocked ? '✕' : '✓'}</div>
+      <div class="dopamine-gate-result-icon">
+        <span class="material-symbols-outlined" style="font-size: 64px;">${isBlocked ? 'block' : 'check_circle'}</span>
+      </div>
       <h2 class="dopamine-gate-result-title">${title}</h2>
       <p class="dopamine-gate-result-message">${decision.message}</p>
       ${isBlocked ? `
-        <p class="dopamine-gate-countdown">Tab will close in <span id="dg-countdown">5</span> seconds...</p>
+        <p class="dopamine-gate-countdown">This tab will self-destruct in <span id="dg-countdown">5</span>s</p>
       ` : `
         <div class="dopamine-gate-actions" style="justify-content: center;">
           <button class="dopamine-gate-btn dopamine-gate-btn-primary" id="dg-btn-proceed">
-            Proceed to Site →
+            Proceed to Site
+            <span class="material-symbols-outlined" style="margin-left: 8px;">arrow_forward</span>
           </button>
         </div>
       `}

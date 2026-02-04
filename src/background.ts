@@ -10,11 +10,9 @@ import { getBlocklist, isBlocked } from "./storage.js";
 // ============================================
 
 /**
- * Listen for tab updates to detect navigation to blocked sites
+ * Core navigation handler to check blocklist and inject UI
  */
-chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    // We check whenever the URL changes or the page is loading
-    const url = changeInfo.url || tab.url;
+async function handleNavigation(tabId: number, url: string | undefined) {
     if (!url) return;
 
     // Skip chrome:// and extension pages
@@ -29,24 +27,42 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         if (isBlocked(url, blocklist)) {
             console.log(`[Dopamine Gate] Blocked domain detected: ${url}`);
 
-            // Always try to inject CSS first
+            // 1. Inject CSS first (fastest visual block)
             await chrome.scripting.insertCSS({
                 target: { tabId },
                 files: ["overlay.css"],
             });
 
-            // Inject content script. 
-            // The content script itself has a check (isOverlayInjected) 
-            // so it won't show the form twice even if injected multiple times.
+            // 2. Inject Content Script (logic)
             await chrome.scripting.executeScript({
                 target: { tabId },
                 files: ["contentScript.js"],
             });
         }
     } catch (error: any) {
-        // This error often happens if the tab is closed during injection, which is fine
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        console.debug("[Dopamine Gate] Injection noise:", errorMessage);
+        // Tab might be closed or navigated away before injection, which is fine
+        const msg = error instanceof Error ? error.message : String(error);
+        console.debug("[Dopamine Gate] Navigation noise:", msg);
+    }
+}
+
+/**
+ * Listen for navigation commits (fires for hard/initial loads and history changes)
+ */
+chrome.webNavigation.onCommitted.addListener((details) => {
+    // frameId 0 is the main window
+    if (details.frameId === 0) {
+        handleNavigation(details.tabId, details.url);
+    }
+});
+
+/**
+ * Fallback/Support for dynamic updates (like tab switching or fast URL updates)
+ */
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    // Only handle if the URL changed in the update info
+    if (changeInfo.url) {
+        handleNavigation(tabId, changeInfo.url);
     }
 });
 

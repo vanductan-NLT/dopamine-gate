@@ -75,11 +75,17 @@ export async function evaluateWithGemini(
 
     try {
         console.log("[Dopamine Gate] Calling Gemini API...");
+
+        // Add AbortController for timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 25000); // 25s timeout for the fetch call
+
         const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
+            signal: controller.signal,
             body: JSON.stringify({
                 contents: [
                     {
@@ -97,6 +103,8 @@ export async function evaluateWithGemini(
                 },
             }),
         });
+
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
@@ -155,14 +163,23 @@ export async function evaluateWithGemini(
             message: aiDecision.message ?? "Decision based on AI evaluation",
             classification: aiDecision.classification,
         };
-    } catch (error) {
-        console.error("Gemini evaluation error:", error);
+    } catch (error: any) {
+        if (error.name === 'AbortError') {
+            console.error("[Dopamine Gate] Gemini API timeout");
+            return {
+                decision: "block",
+                confidence: 1,
+                message: "⏱️ Gemini API level timeout. Check your connection or try again.",
+            };
+        }
+
+        console.error("[Dopamine Gate] Gemini evaluation error:", error);
 
         // Fallback to blocking on error (safer default)
         return {
             decision: "block",
-            confidence: 0.5,
-            message: "Failed to process AI response. Defaulting to block for safety.",
+            confidence: 1,
+            message: `AI Error: ${error.message || "Connection failed"}. Access blocked for safety.`,
         };
     }
 }

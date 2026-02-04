@@ -466,14 +466,14 @@ async function handleFormSubmit(event: Event): Promise<void> {
 
     // If no client rule applies, ask background (to bypass CSP and protect API Key context)
     if (!decision) {
-      // Safety timeout: block if AI doesn't respond in 30s
+      // Safety timeout: block if AI doesn't respond in 60s
       const evaluationPromise = chrome.runtime.sendMessage({
         type: "EVALUATE_REFLECTION",
         answers
       });
 
       const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("AI Analysis timeout (30s)")), 30000)
+        setTimeout(() => reject(new Error("AI Analysis timeout (60s)")), 60000)
       );
 
       const response = await Promise.race([evaluationPromise, timeoutPromise]) as any;
@@ -499,13 +499,23 @@ async function handleFormSubmit(event: Event): Promise<void> {
       // Show result
       showResult(decision);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("[Dopamine Gate] Evaluation error:", error);
-    showResult({
-      decision: "block",
-      confidence: 1,
-      message: "AI Connection failure. Defaulting to block for safety.",
-    });
+
+    // Check if it's a timeout vs other error
+    if (error.message && error.message.includes("timeout")) {
+      showResult({
+        decision: "block",
+        confidence: 1,
+        message: "⏱️ AI took too long to respond. Refresh and try again, or check your internet connection.",
+      });
+    } else {
+      showResult({
+        decision: "block",
+        confidence: 1,
+        message: `AI Connection failure: ${error.message || "Unknown error"}. Access blocked for safety.`,
+      });
+    }
   }
 }
 

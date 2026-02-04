@@ -466,7 +466,20 @@ async function handleFormSubmit(event: Event): Promise<void> {
 
     // If no client rule applies, ask background (to bypass CSP and protect API Key context)
     if (!decision) {
-      // Safety timeout: block if AI doesn't respond in 60s
+      console.log("[Dopamine Gate] Verifying background script...");
+
+      // 1. PING background script to ensure it's alive
+      try {
+        const pingResponse = await chrome.runtime.sendMessage({ type: "PING" });
+        if (!pingResponse || pingResponse.data !== "PONG") {
+          throw new Error("Background script not responding properly.");
+        }
+        console.log("[Dopamine Gate] Background script active. Requesting evaluation...");
+      } catch (e) {
+        throw new Error("Could not connect to background script. Please reload the extension.");
+      }
+
+      // 2. Request AI Evaluation
       const evaluationPromise = chrome.runtime.sendMessage({
         type: "EVALUATE_REFLECTION",
         answers

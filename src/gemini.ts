@@ -74,7 +74,7 @@ export async function evaluateWithGemini(
             future_feeling: answers.futureFeeling,
         };
 
-        console.log("[Dopamine Gate] Calling Gemini API...");
+        console.log(`[Dopamine Gate] Calling Gemini API (${GEMINI_API_URL.split('/').pop()})`);
 
         // Add AbortController for timeout
         const controller = new AbortController();

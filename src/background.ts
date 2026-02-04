@@ -1,10 +1,14 @@
-/**
- * Dopamine Gate - Background Service Worker
- * Monitors tab navigation and injects content script for blocked domains
- */
-
 import { getBlocklist, isBlocked, getIsEnabled } from "./storage.js";
 import { evaluateWithGemini } from "./gemini.js";
+
+// Track tabs where overlay is already active to prevent flooding
+const activeOverlays = new Set<number>();
+
+// Clear tracking when tab is closed or navigated away
+chrome.tabs.onRemoved.addListener((tabId) => activeOverlays.delete(tabId));
+chrome.webNavigation.onBeforeNavigate.addListener((details) => {
+    if (details.frameId === 0) activeOverlays.delete(details.tabId);
+});
 
 // ============================================
 // Tab Navigation Listener
@@ -21,36 +25,41 @@ async function handleNavigation(tabId: number, url: string | undefined) {
         return;
     }
 
+    // Skip if already injected in this session
+    if (activeOverlays.has(tabId)) {
+        return;
+    }
+
     try {
         // Check if extension is globally enabled first
         const isEnabled = await getIsEnabled();
-        if (!isEnabled) {
-            console.debug("[Dopamine Gate] Extension is disabled, skipping check");
-            return;
-        }
+        if (!isEnabled) return;
 
         const blocklist = await getBlocklist();
 
         // Check if URL matches blocked domain
         if (isBlocked(url, blocklist)) {
-            console.log(`[Dopamine Gate] Blocked domain detected: ${url}`);
+            console.log(`[Dopamine Gate] Blocking domain: ${url}`);
+
+            activeOverlays.add(tabId);
 
             // 1. Inject CSS first (fastest visual block)
             await chrome.scripting.insertCSS({
                 target: { tabId },
                 files: ["overlay.css"],
-            });
+            }).catch(() => { });
 
             // 2. Inject Content Script (logic)
             await chrome.scripting.executeScript({
                 target: { tabId },
                 files: ["contentScript.js"],
+            }).catch(err => {
+                console.error("[Dopamine Gate] Injection failed:", err);
+                activeOverlays.delete(tabId);
             });
         }
     } catch (error: any) {
-        // Tab might be closed or navigated away before injection, which is fine
-        const msg = error instanceof Error ? error.message : String(error);
-        console.debug("[Dopamine Gate] Navigation noise:", msg);
+        console.debug("[Dopamine Gate] Navigation noise:", error);
     }
 }
 
@@ -82,34 +91,40 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
  * Handle messages from content scripts
  */
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    console.log(`[Dopamine Gate] Action received: ${message.type}`);
+    // Immediate response for simple types
+    if (message.type === "PING") {
+        sendResponse({ success: true, data: "PONG" });
+        return false;
+    }
 
     if (message.type === "CLOSE_TAB") {
         if (sender.tab?.id) {
             chrome.tabs.remove(sender.tab.id);
         }
         sendResponse({ success: true });
-        return false; // Sync response
+        return false;
     }
 
     if (message.type === "EVALUATE_REFLECTION") {
-        console.log("[Dopamine Gate] Starting proxy evaluation for:", sender.url);
-        evaluateWithGemini(message.answers)
-            .then(decision => {
-                console.log("[Dopamine Gate] Evaluation success:", decision.decision);
+        // Use an IIFE to handle async logic safely
+        (async () => {
+            try {
+                console.log("[Dopamine Gate] Proxying evaluation for:", sender.url);
+                const decision = await evaluateWithGemini(message.answers);
+                console.log("[Dopamine Gate] AI Decision:", decision.decision);
                 sendResponse({ success: true, decision });
-            })
-            .catch(error => {
-                console.error("[Dopamine Gate] Proxy Evaluation Error:", error);
+            } catch (error: any) {
+                console.error("[Dopamine Gate] Background error:", error);
                 sendResponse({
                     success: false,
-                    error: error instanceof Error ? error.message : String(error)
+                    error: error.message || "Background evaluation failed"
                 });
-            });
-        return true; // Keep channel open for async response
+            }
+        })();
+        return true; // MUST return true to keep channel open for async sendResponse
     }
 
-    return false; // Default: closed
+    return false;
 });
 
 // ============================================

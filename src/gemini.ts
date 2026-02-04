@@ -36,7 +36,7 @@ Return ONLY this JSON format:
 {
   "decision": "allow" or "block",
   "confidence": 0.0 to 1.0,
-  "message": "Brief explanation in Vietnamese",
+  "message": "Brief explanation in English",
   "classification": "productive" or "neutral" or "procrastination" or "emotional_escape"
 }`;
 
@@ -59,7 +59,7 @@ export async function evaluateWithGemini(
         return {
             decision: "block",
             confidence: 1,
-            message: "API key chưa được cấu hình. Vui lòng thêm API key trong Settings.",
+            message: "API Key not configured. Please add it in the extension settings.",
         };
     }
 
@@ -102,18 +102,26 @@ export async function evaluateWithGemini(
             console.error("Gemini API error:", errorData);
 
             // Handle specific error cases
-            if (response.status === 400) {
+            if (response.status === 400 || response.status === 403) {
                 return {
                     decision: "block",
                     confidence: 1,
-                    message: "API key không hợp lệ. Vui lòng kiểm tra lại trong Settings.",
+                    message: `Invalid API Key or restricted region (Status ${response.status}). Check Settings.`,
+                };
+            }
+
+            if (response.status === 429) {
+                return {
+                    decision: "block",
+                    confidence: 1,
+                    message: "Rate limit exceeded. Please wait a moment before trying again.",
                 };
             }
 
             return {
                 decision: "block",
                 confidence: 1,
-                message: "Lỗi kết nối với AI. Mặc định chặn để bảo vệ bạn.",
+                message: `AI Connection Error (Status ${response.status}). Defaulting to block for safety.`,
             };
         }
 
@@ -142,7 +150,7 @@ export async function evaluateWithGemini(
         return {
             decision: aiDecision.decision,
             confidence: aiDecision.confidence ?? 0.5,
-            message: aiDecision.message ?? "Quyết định dựa trên AI",
+            message: aiDecision.message ?? "Decision based on AI evaluation",
             classification: aiDecision.classification,
         };
     } catch (error) {
@@ -152,7 +160,7 @@ export async function evaluateWithGemini(
         return {
             decision: "block",
             confidence: 0.5,
-            message: "Không thể xử lý phản hồi AI. Mặc định chặn để bảo vệ bạn.",
+            message: "Failed to process AI response. Defaulting to block for safety.",
         };
     }
 }
@@ -169,7 +177,7 @@ export function applyClientRules(answers: ReflectionAnswers): AIDecision | null 
         return {
             decision: "block",
             confidence: 1,
-            message: "Chính bạn cũng thấy lướt tiếp là phí thời gian. Hãy dừng lại thôi! 🛑",
+            message: "You already identified this as a waste of time. Let's stop here! 🛑",
         };
     }
 
@@ -178,7 +186,7 @@ export function applyClientRules(answers: ReflectionAnswers): AIDecision | null 
         return {
             decision: "block",
             confidence: 0.9,
-            message: "Đừng để bản thân rơi vào cảm giác trống rỗng sau khi lướt. Đi làm gì đó có ích hơn đi! ✨",
+            message: "Don't let yourself feel empty after scrolling. Go do something meaningful! ✨",
         };
     }
 

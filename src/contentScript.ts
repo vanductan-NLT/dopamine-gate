@@ -488,7 +488,7 @@ async function handleFormSubmit(event: Event): Promise<void> {
     showResult({
       decision: "block",
       confidence: 1,
-      message: "Đã xảy ra lỗi. Mặc định chặn để bảo vệ bạn.",
+      message: "An unexpected error occurred. Defaulting to block for safety.",
     });
   }
 }

@@ -466,36 +466,40 @@ async function handleFormSubmit(event: Event): Promise<void> {
 
     // If no client rule applies, ask background (to bypass CSP and protect API Key context)
     if (!decision) {
-      console.log("[Dopamine Gate] Verifying background script...");
+      console.log("[Dopamine Gate] Starting AI Evaluation sequence...");
 
-      // 1. PING background script to ensure it's alive
-      try {
-        const pingResponse = await chrome.runtime.sendMessage({ type: "PING" });
-        if (!pingResponse || pingResponse.data !== "PONG") {
-          throw new Error("Background script not responding properly.");
+      const evaluationWorkflow = (async () => {
+        // 1. PING background script
+        try {
+          console.log("[Dopamine Gate] Sending PING...");
+          const pingResponse = await chrome.runtime.sendMessage({ type: "PING" });
+          if (!pingResponse || pingResponse.data !== "PONG") {
+            throw new Error("Invalid PING response");
+          }
+          console.log("[Dopamine Gate] Background alive (PONG). Requesting analysis...");
+        } catch (e) {
+          throw new Error("Communication channel broken. Please refresh the page.");
         }
-        console.log("[Dopamine Gate] Background script active. Requesting evaluation...");
-      } catch (e) {
-        throw new Error("Could not connect to background script. Please reload the extension.");
-      }
 
-      // 2. Request AI Evaluation
-      const evaluationPromise = chrome.runtime.sendMessage({
-        type: "EVALUATE_REFLECTION",
-        answers
-      });
+        // 2. Request AI Evaluation
+        const response = await chrome.runtime.sendMessage({
+          type: "EVALUATE_REFLECTION",
+          answers
+        });
+
+        if (response && response.success) {
+          return response.decision;
+        } else {
+          throw new Error(response?.error || "AI Service unavailable");
+        }
+      })();
 
       const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error("AI Analysis timeout (60s)")), 60000)
       );
 
-      const response = await Promise.race([evaluationPromise, timeoutPromise]) as any;
-
-      if (response && response.success) {
-        decision = response.decision;
-      } else {
-        throw new Error(response?.error || "Background evaluation failed");
-      }
+      // Race the entire workflow against the timeout
+      decision = (await Promise.race([evaluationWorkflow, timeoutPromise])) as AIDecision;
     }
 
     // decision is guaranteed to exist here if no error thrown

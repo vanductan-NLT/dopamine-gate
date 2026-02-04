@@ -53,26 +53,34 @@ function getCurrentDomain(): string {
  * Main entry point - inject overlay if not already present
  */
 async function init(): Promise<void> {
-  if (isOverlayInjected()) {
-    console.log("[Dopamine Gate] Overlay already exists, skipping");
-    return;
-  }
+  // Prevent multiple active initializations
+  if ((window as any).dg_initializing) return;
+  (window as any).dg_initializing = true;
 
-  // Inject symbols and fonts
-  injectAssets();
+  try {
+    if (isOverlayInjected()) {
+      console.log("[Dopamine Gate] Overlay already exists, skipping");
+      return;
+    }
 
-  // Check if API key is configured
-  const apiKey = await getApiKey();
-  if (!apiKey) {
-    injectApiKeyWarning();
-  } else {
-    injectOverlay();
-  }
+    // Inject symbols and fonts
+    injectAssets();
 
-  // Start observing the DOM to prevent removal (only once)
-  if (!(window as any).dg_observer_active) {
-    setupPersistenceObserver();
-    (window as any).dg_observer_active = true;
+    // Check if API key is configured
+    const apiKey = await getApiKey();
+    if (!apiKey) {
+      injectApiKeyWarning();
+    } else {
+      injectOverlay();
+    }
+
+    // Start observing the DOM to prevent removal (only once)
+    if (!(window as any).dg_observer_active) {
+      setupPersistenceObserver();
+      (window as any).dg_observer_active = true;
+    }
+  } finally {
+    (window as any).dg_initializing = false;
   }
 }
 
@@ -146,7 +154,6 @@ function injectOverlay(): void {
           </div>
         </div>
 
-        <!-- Question 2: Specific Goal -->
         <div class="dopamine-gate-step" data-step="2">
           <div class="dopamine-gate-group">
             <label class="dopamine-gate-label">
@@ -160,6 +167,7 @@ function injectOverlay(): void {
               placeholder="No target = mindless scrolling..."
               required
             ></textarea>
+            <div class="dopamine-gate-counter" id="dg-goal-counter">0/20</div>
           </div>
         </div>
 
@@ -303,6 +311,7 @@ function setupFormListeners(): void {
 
   // Character counters
   setupCharacterCounter(document.getElementById("dg-reason") as HTMLTextAreaElement, "dg-reason-counter");
+  setupCharacterCounter(document.getElementById("dg-goal-target") as HTMLTextAreaElement, "dg-goal-counter");
   setupCharacterCounter(document.getElementById("dg-alternative") as HTMLTextAreaElement, "dg-alternative-counter");
 
   leaveBtn?.addEventListener("click", () => {
@@ -408,18 +417,22 @@ function setupCharacterCounter(textarea: HTMLTextAreaElement, counterId: string)
   if (!textarea || !counter) return;
 
   const updateCounter = (): void => {
-    const length = textarea.value.length;
-    counter.textContent = `${length}/${MIN_TEXT_LENGTH}`;
-
-    counter.classList.remove("warning", "valid");
-    if (length >= MIN_TEXT_LENGTH) {
-      counter.classList.add("valid");
-    } else if (length > 0) {
-      counter.classList.add("warning");
+    const length = (textarea.value || "").length;
+    if (counter) {
+      counter.textContent = `${length}/${MIN_TEXT_LENGTH}`;
+      counter.classList.remove("warning", "valid");
+      if (length >= MIN_TEXT_LENGTH) {
+        counter.classList.add("valid");
+      } else if (length > 0) {
+        counter.classList.add("warning");
+      }
     }
   };
 
-  textarea.addEventListener("input", updateCounter);
+  ["input", "keyup", "change", "paste"].forEach(event => {
+    textarea.addEventListener(event, updateCounter);
+  });
+
   updateCounter();
 }
 
